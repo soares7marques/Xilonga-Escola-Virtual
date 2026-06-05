@@ -1,0 +1,438 @@
+.apresentacao-aula {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a3a4a 0%, #2c5364 50%, #1a3a4a 100%);
+  background-color: #1a3a4a;
+  margin-top: 80px; /* evita sobreposição da navbar fixa */
+  color: #fff;
+}
+
+.conteudo-aula {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  min-height: calc(100vh - 160px);
+}
+
+.area-estudo {
+  width: 100%;
+  max-width: 800px;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.area-estudo h2 {
+  color: #5cd8d0;
+  margin-top: 0;
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.subtitulo {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.1rem;
+  margin: 10px 0 30px;
+}
+
+.btn-voltar {
+  background-color: rgba(92, 216, 208, 0.3);
+  color: #5cd8d0;
+  border: 1px solid #5cd8d0;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.btn-voltar:hover {
+  background-color: rgba(92, 216, 208, 0.5);
+  transform: translateX(-5px);
+}
+
+/* ===== DISCIPLINAS ===== */
+.disciplinas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.disciplina-btn {
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #5cd8d0 0%, #2c5364 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.disciplina-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(92, 216, 208, 0.4);
+  background: linear-gradient(135deg, #6ee0d8 0%, #3a6374 100%);
+}
+
+.disciplina-btn:active {
+  transform: translateY(-2px);
+}
+
+/* ===== SEMESTRES ===== */
+.semestres {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.semestre-btn {
+  padding: 20px 30px;
+  background: linear-gradient(135deg, #2c8b85 0%, #1a5a54 100%);
+  color: #fff;
+  border: 2px solid #5cd8d0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.semestre-btn:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(92, 216, 208, 0.5);
+  background: linear-gradient(135deg, #3aa09a 0%, #236b60 100%);
+  border-color: #7ae5dc;
+}
+
+/* ===== LISTA DE VÍDEOS ===== */
+.lista-videos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.video-btn {
+  padding: 15px 20px;
+  background-color: rgba(92, 216, 208, 0.2);
+  color: #5cd8d0;
+  border: 2px solid rgba(92, 216, 208, 0.5);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.video-numero {
+  color: #5cd8d0;
+  font-size: 1.2rem;
+  min-width: 30px;
+}
+
+.video-btn:hover {
+  background-color: rgba(92, 216, 208, 0.4);
+  border-color: #5cd8d0;
+  transform: translateX(10px);
+  box-shadow: 0 4px 12px rgba(92, 216, 208, 0.3);
+}
+
+/* ===== SEÇÃO DE VÍDEO ===== */
+.video-section {
+  width: 100%;
+  max-width: 900px;
+}
+
+.breadcrumb {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.video-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.video-apresentacao {
+  width: 100%;
+  max-width: 800px;
+  height: 450px;
+  border: 3px solid rgba(92, 216, 208, 0.5);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  background-color: #000;
+}
+
+.video-youtube {
+  border: 3px solid rgba(92, 216, 208, 0.5);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== PRÓXIMOS VÍDEOS ===== */
+.proximos-videos {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 25px;
+  border-radius: 10px;
+  border: 1px solid rgba(92, 216, 208, 0.2);
+}
+
+.proximos-videos h3 {
+  color: #5cd8d0;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+.lista-proximos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.proximo-btn {
+  padding: 12px 15px;
+  background-color: rgba(92, 216, 208, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(92, 216, 208, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.proximo-btn:hover {
+  background-color: rgba(92, 216, 208, 0.3);
+  border-color: #5cd8d0;
+  transform: translateX(8px);
+}
+
+/* ==================== RESPONSIVO ==================== */
+@media (max-width: 768px) {
+  .conteudo-aula {
+    padding: 20px 15px;
+  }
+
+  .area-estudo {
+    padding: 25px 20px;
+  }
+
+  .area-estudo h2 {
+    font-size: 1.5rem;
+  }
+
+  .disciplinas {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .semestres {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .semestre-btn {
+    min-height: 80px;
+  }
+
+  .video-apresentacao {
+    height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .apresentacao-aula {
+    margin-top: 70px;
+  }
+
+  .conteudo-aula {
+    padding: 15px 10px;
+  }
+
+  .area-estudo {
+    padding: 20px 15px;
+  }
+
+  .area-estudo h2 {
+    font-size: 1.3rem;
+  }
+
+  .disciplinas {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .disciplina-btn {
+    padding: 12px 15px;
+    font-size: 0.9rem;
+    min-height: 50px;
+  }
+
+  .video-apresentacao {
+    height: 200px;
+  }
+
+  .proximos-videos {
+    padding: 15px;
+  }
+}
+
+
+/* ===== BARRA DE PROGRESSO ===== */
+.progresso-container {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(92, 216, 208, 0.3);
+}
+
+.progresso-texto {
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  color: #5cd8d0;
+  font-weight: bold;
+}
+
+.progresso-barra {
+  width: 100%;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(92, 216, 208, 0.3);
+}
+
+.progresso-preenchido {
+  height: 100%;
+  background: linear-gradient(90deg, #5cd8d0 0%, #2c8b85 100%);
+  transition: width 0.3s ease;
+}
+
+/* ===== VÍDEOS ASSISTIDOS ===== */
+.video-btn.assistido {
+  background-color: rgba(92, 216, 208, 0.4);
+  border-color: rgba(92, 216, 208, 0.8);
+  color: #7ae5dc;
+}
+
+.video-btn.assistido .video-numero {
+  color: #2c8b85;
+  font-weight: bold;
+}
+
+.video-numero {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+/* ===== BOTÃO DE PROVA ===== */
+.botao-prova-container {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-prova {
+  padding: 15px 40px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  min-width: 250px;
+}
+
+.btn-prova.habilitado {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a3f 100%);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.btn-prova.habilitado:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(255, 107, 107, 0.6);
+  background: linear-gradient(135deg, #ff7c7c 0%, #ff6b5b 100%);
+}
+
+.btn-prova.habilitado:active {
+  transform: translateY(-1px);
+}
+
+.btn-prova.desabilitado {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-prova.desabilitado:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: none;
+}
+
+@media (max-width: 480px) {
+  .area-estudo {
+    padding: 20px;
+  }
+
+  .area-estudo h2 {
+    font-size: 1.5rem;
+  }
+
+  .disciplina-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .video-apresentacao {
+    height: 200px;
+  }
+
+  .btn-prova {
+    padding: 12px 25px;
+    font-size: 1rem;
+    min-width: 200px;
+  }
+}

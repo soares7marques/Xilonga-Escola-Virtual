@@ -1,0 +1,74 @@
+package com.example.demo.Controller;
+
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.Dto.DtoDisciplina;
+import com.example.demo.Dto.DtoProfessor;
+import com.example.demo.Service.AdminService;
+import com.example.demo.Service.ClasseService;
+import com.example.demo.Service.DisciplinaService;
+import com.example.demo.Service.ProfessorService;
+import com.example.demo.model.Classe;
+import com.example.demo.model.Disciplina;
+import com.example.demo.model.Utilizador;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
+
+
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@RequestMapping("/adminn")
+@RestController
+public class AdminController {
+    
+    private AdminService adminService;
+    private ClasseService nivelService;
+    private DisciplinaService disciplinaService;
+    private ProfessorService professorService;
+
+    public AdminController(AdminService adminService, ClasseService nivelService,ProfessorService professorService) {
+        this.adminService = adminService;
+        this.nivelService = nivelService;
+        this.professorService = professorService;
+
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerAluno(@Valid @RequestBody Utilizador entity) {
+        return ResponseEntity.ok().body(adminService.SalveAdmin(entity));
+    }
+    
+    @PostMapping("/registerClasse")
+    public ResponseEntity<?> registerClasse(@Valid @RequestBody Classe entity) {
+        return ResponseEntity.ok().body(nivelService.criarClasse(entity));
+    }
+
+    @GetMapping("/listaClasse")
+    public List<Classe> findClasse() {
+        return nivelService.ListaClasse();
+    }
+
+    @PostMapping("/registerDisciplina")
+    public ResponseEntity<?> registerDisciplina(@Valid @RequestBody DtoDisciplina entity)
+    {
+        return ResponseEntity.ok().body(disciplinaService.criarDisciplina(entity));
+    }
+
+    @GetMapping("/listaDisciplina")
+    public List<Disciplina> findDisciplina() {
+        return disciplinaService.ListaDisciplinas();
+    }
+    
+    
+    @PostMapping("/registerProfessor")
+    public ResponseEntity<?> registerPro(@Valid @RequestBody DtoProfessor entity)
+    {
+        return ResponseEntity.ok().body(professorService.SalveProfessor(entity));
+    }
+}

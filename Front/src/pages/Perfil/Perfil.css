@@ -1,0 +1,207 @@
+
+/* ==================== MAIN CONTENT ==================== */
+.perfil-main {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 30px;
+  padding: 40px 20px;
+  max-width: 1200px;
+  animation: fadeInUp 0.8s ease-in-out;
+}
+
+/* Seção de dados do estudante */
+.perfil-dados {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 700px;
+
+  background: linear-gradient(135deg, #0f2027 0%, #5691aa 100%);
+
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 20px;
+  animation: slideInLeft 0.8s ease-in-out;
+  margin-top: 80px;
+}
+
+/* Foto do estudante */
+.perfil-foto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.perfil-foto img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #40c4b9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.perfil-foto img:hover {
+  transform: scale(1.1);
+}
+
+.btn-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #40c4b9;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-upload:hover {
+  background: #359a91;
+  transform: scale(1.1);
+}
+
+.perfil-info {
+  flex: 1;
+}
+
+.perfil-info h2 {
+  font-size: 1.5rem;
+  color: #40c4b9;
+  margin-bottom: 15px;
+}
+
+.perfil-info p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 5px 0;
+}
+
+/* ===== GRÁFICO DE PROGRESSO ===== */
+.perfil-progress {
+  margin-top: 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.perfil-progress h3 {
+  margin: 0 0 10px 0;
+  color: #5cd8d0;
+}
+
+.total-assistidas {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 10px;
+}
+
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-label {
+  flex: 0 0 220px;
+  color: rgba(255,255,255,0.9);
+}
+
+.progress-bar {
+  flex: 1;
+  height: 12px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5cd8d0 0%, #2c8b85 100%);
+  transition: width 0.4s ease;
+}
+
+.progress-count {
+  flex: 0 0 36px;
+  text-align: right;
+  color: rgba(255,255,255,0.9);
+}
+
+.nenhuma-atividade {
+  color: rgba(255,255,255,0.7);
+  font-style: italic;
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+@media (max-width: 768px) {
+  .perfil-main {
+    flex-direction: column; /* Empilha os elementos em telas menores */
+  }
+
+  .perfil-dados {
+    flex: none;
+    width: 100%; /* Ocupa toda a largura */
+  }
+}
+
+@media (max-width: 480px) {
+  .perfil-foto img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .btn-upload {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+}

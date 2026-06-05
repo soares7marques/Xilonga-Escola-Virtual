@@ -1,0 +1,445 @@
+
+/* ==================== MAIN CONTENT ==================== */
+.esqueci-mainContent {
+  display: flex;
+  align-items: center;
+  padding: 80px 40px;
+  gap: 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.esqueci-image-section {
+  flex: 1;
+}
+
+.esqueci-image-section img {
+  width: 90%;
+  border-radius: 20px;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
+  margin-top: 11px;
+}
+
+.esqueci-image-section img:hover {
+  transform: scale(1.02);
+}
+
+/* ==================== FORM SECTION ==================== */
+.esqueci-formSection {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translateY(-2px);
+}
+
+.esqueci-formSection:hover{
+  transform: scale(1.02);
+}
+
+.esqueci-reset-box {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border-radius: 25px;
+  padding: 50px 40px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+.reset-icon {
+  font-size: 3rem;
+  color: #40c4b9;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.reset-box h2 {
+  font-size: 2.2rem;
+  color: #40c4b9;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.reset-box p {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+/* ==================== INPUT GROUPS ==================== */
+.esqueci-inputGroup {
+  position: relative;
+  margin-bottom: 25px;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #40c4b9;
+  font-size: 1.2rem;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+
+.esqueci-inputGroup input {
+  width: 100%;
+  padding: 18px 25px 18px 55px;
+  border: 2px solid #e1e1e1;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  background: #fff;
+  transition: all 0.3s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.esqueci-inputGroup input:focus {
+  border-color: #40c4b9;
+  box-shadow: 0 0 0 4px rgba(64, 196, 185, 0.1);
+}
+
+.esqueci-inputGroup input:focus + .input-icon {
+  color: #359a91;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.esqueci-inputGroup input::placeholder {
+  color: #999;
+}
+
+/* ==================== BUTTON ==================== */
+.esqueci-btn-reset {
+  width: 100%;
+  padding: 18px;
+  background: #40c4b9;
+  color: #fff;
+  border: none;
+  border-radius: 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 25px;
+  box-shadow: 0 5px 20px rgba(64, 196, 185, 0.3);
+}
+
+.esqueci-btn-reset:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(64, 196, 185, 0.4);
+}
+
+.esqueci-btn-reset:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ==================== MESSAGE STYLES ==================== */
+.message {
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message.success {
+  background: #dcfce7;
+  color: #16a34a;
+  border: 2px solid #bbf7d0;
+}
+
+.message.error {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 2px solid #fecaca;
+}
+
+.message i {
+  font-size: 1.2rem;
+}
+
+/* ==================== SECURITY INFO ==================== */
+.security-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.security-info i {
+  color: #40c4b9;
+  font-size: 1.1rem;
+}
+
+/* ==================== BACK TO LOGIN ==================== */
+.back-to-login {
+  text-align: center;
+}
+
+.back-to-login a {
+  color: #40c4b9;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.back-to-login a:hover {
+  color: #359a91;
+  transform: translateX(-5px);
+}
+
+/* ==================== STEPS SECTION ==================== */
+.steps-section {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 80px 40px;
+  margin: 40px;
+  border-radius: 30px;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+}
+
+.steps-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.steps-container h3 {
+  font-size: 2.5rem;
+  color: #40c4b9;
+  margin-bottom: 50px;
+  font-weight: bold;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 40px;
+}
+
+.step {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.step-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #40c4b9, #359a91);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  box-shadow: 0 10px 30px rgba(64, 196, 185, 0.3);
+}
+
+.step-icon i {
+  font-size: 2rem;
+  color: #fff;
+}
+
+.step h4 {
+  font-size: 1.3rem;
+  color: #40c4b9;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.step p {
+  color: #666;
+  line-height: 1.6;
+}
+
+/* ==================== FAQ SECTION ==================== */
+.faq-section {
+  padding: 80px 40px;
+}
+
+.faq-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.faq-container h3 {
+  font-size: 2.5rem;
+  color: #fff;
+  margin-bottom: 50px;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.faq-item {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 30px 25px;
+  border-radius: 20px;
+  text-align: left;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.faq-item:hover {
+  transform: translateY(-5px);
+}
+
+.faq-item h4 {
+  color: #40c4b9;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.faq-item h4 i {
+  font-size: 1.2rem;
+}
+
+.faq-item p {
+  color: #666;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+@media (max-width: 768px) {
+ 
+
+  .esqueci-mainContent {
+    flex-direction: column;
+    padding: 50px 20px;
+    gap: 40px;
+  }
+
+  .esqueci-reset-box {
+    padding: 40px 30px;
+  }
+
+  .esqueci-reset-box h2 {
+    font-size: 1.8rem;
+  }
+
+  .steps-section,
+  .faq-section {
+    padding: 60px 20px;
+    margin: 20px;
+  }
+
+  .steps-container h3,
+  .faq-container h3 {
+    font-size: 2rem;
+  }
+
+  .steps-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .faq-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+}
+
+@media (max-width: 480px) {
+  .esqueci-reset-box {
+    padding: 30px 20px;
+  }
+
+  .esqueci-inputGroup input {
+    padding: 15px 20px 15px 50px;
+    font-size: 1rem;
+  }
+
+  .esqueci-btn-reset {
+    padding: 15px;
+    font-size: 1.1rem;
+  }
+
+  .reset-icon {
+    font-size: 2.5rem;
+  }
+
+  .esqueci-reset-box h2 {
+    font-size: 1.6rem;
+  }
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.esqueci-reset-box {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.esqueci-image-section {
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.step {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.step:nth-child(2) { animation-delay: 0.1s; }
+.step:nth-child(3) { animation-delay: 0.2s; }
+.step:nth-child(4) { animation-delay: 0.3s; }
+
+.faq-item {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.faq-item:nth-child(2) { animation-delay: 0.1s; }
+.faq-item:nth-child(3) { animation-delay: 0.2s; }
+.faq-item:nth-child(4) { animation-delay: 0.3s; }

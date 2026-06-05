@@ -1,0 +1,252 @@
+.login-page-layout {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Arial', sans-serif;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+.Login-main-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 70px 40px;
+  gap: 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 80%;
+  margin-top: 32px; /* ajuste conforme necessário */
+}
+
+.Login-image-section {
+  flex: 1;
+}
+
+.Login-image-section img {
+  width: 100%;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
+}
+
+.Login-image-section img:hover {
+  transform: scale(1.02);
+}
+
+/* ==================== FORM SECTION ==================== */
+.Login-form-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-box {
+  background-color:white;
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 50px 40px;
+  box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  font-weight: bold;
+  transform: translateY(-2px);
+}
+
+.login-box:hover{
+  transform: scale(1.02);
+}
+
+.login-box h2 {
+  font-size: 2rem;
+  color: #40c4b9;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.login-box p {
+  color: #40c4b9;
+  margin-bottom: 30px;
+  font-size: 1.5rem;
+}
+
+/* ==================== FORM STYLES ==================== */
+.login-box form {
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+/* ==================== INPUT GROUPS COM ÍCONES ==================== */
+.Login-input-group {
+  position: relative;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.Login-input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #40c4b9;
+  font-size: 1.1rem;
+  z-index: 2;
+  transition: color 0.3s ease;
+  pointer-events: none;
+}
+
+.Login-input-group input {
+  width: 100%;
+  padding: 15px 20px 15px 50px;
+  border: 2px solid #e1e1e1;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: #fff;
+  transition: all 0.3s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.Login-input-group input:focus {
+  border-color: #40c4b9;
+  box-shadow: 0 0 0 3px rgba(64, 196, 185, 0.1);
+}
+
+.Login-input-group input:focus ~ .input-icon {
+  color: #359a91;
+}
+
+.Login-input-group input::placeholder {
+  color: #999;
+}
+
+/* ==================== BUTTON ==================== */
+.Login-btn-login {
+  width: 100%;
+  padding: 15px;
+  background:linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.Login-btn-login:hover {
+  background: #4cc4bc;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(64, 196, 185, 0.3);
+}
+
+.Login-btn-login:active {
+  transform: translateY(0);
+}
+
+/* ==================== LINKS ==================== */
+.Login-links {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.Login-links a {
+  color: #40c4b9;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.Login-links a:hover {
+  color: #287e77;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+@media (max-width: 768px) {
+
+  .Login-main-content {
+    flex-direction: column;
+    padding: 40px 20px;
+    gap: 40px;
+  }
+
+  .login-box {
+    padding: 40px 30px;
+  }
+
+  .login-box h2 {
+    font-size: 1.5rem;
+  }
+
+  .Login-links {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+
+@media (max-width: 480px) {
+  .login-box {
+    padding: 30px 20px;
+  }
+
+  .Login-input-group input {
+    padding: 12px 15px 12px 45px;
+    font-size: 0.95rem;
+  }
+
+  .Login-input-icon {
+    left: 12px;
+    font-size: 1rem;
+  }
+
+  .Login-btn-login {
+    padding: 12px;
+    font-size: 1rem;
+  }
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-box {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.Login-image-section {
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.Login-input-group {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.Login-input-group:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.Login-input-group:nth-child(2) {
+  animation-delay: 0.2s;
+ } 
+
+}
