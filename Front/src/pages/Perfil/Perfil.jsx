@@ -53,12 +53,14 @@ const Perfil = () => {
 
     const fetchPerfil = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/aluno/perfil?email=${encodeURIComponent(email)}`,
+        const response = await fetch(`http://localhost:8080/aluno/perfil`,
           {
         headers: {
           'Content-Type': 'application/json',
-        },
+        }, credentials: 'include',
+         body: JSON.stringify({email})
           }
+
         );
         if (response.ok) {
           const data = await response.json();

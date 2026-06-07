@@ -10,7 +10,9 @@ const NavbarAula = () => {
       try {
         await fetch("http://localhost:8080/utilizador/logout", {
           method: "POST",
-          credentials: "include"
+        headers: {
+          'Content-Type': 'application/json',
+        }, credentials: 'include',
         });
       } catch (e) {
         // Ignora erro de rede

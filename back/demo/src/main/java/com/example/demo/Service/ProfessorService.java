@@ -1,6 +1,5 @@
 package com.example.demo.Service;
 
-import java.lang.StackWalker.Option;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +30,7 @@ public class ProfessorService {
     public ProfessorService(ProfessorRepository professorRepository, UtilizadorRepository utilizadorRepository,PasswordEncoder passwordEncoder,ClasseRepository classeRepository
     ,DisciplinaRepository disciplinaRepository){
         this.professorRepository = professorRepository;
-        this.professorRepository = professorRepository;
+        this.utilizadorRepository = utilizadorRepository;
         this.passwordEncoder = passwordEncoder;
         this.classeRepository = classeRepository;
         this.disciplinaRepository = disciplinaRepository;
@@ -49,11 +48,13 @@ public class ProfessorService {
         utilizador.setRole("professor"); // Definir a role padrão para o usuário
         utilizador.setNome(request.getNome());
         utilizador.setEmail(request.getEmail());
+        utilizador.setTelefone(request.getTelefone());
+        utilizador.setGenero(request.getGenero());
 
         utilizadorRepository.save(utilizador);
         Professor prof = new Professor();
 
-        Optional<Classe> opt = classeRepository.findByNome(request.getNome());
+        Optional<Classe> opt = classeRepository.findByNome(request.getClasse());
         Classe optClasse = opt.get();
 
         Optional<Disciplina> disc = disciplinaRepository.findByClasseAndNome(optClasse, request.getDisciplina());
@@ -68,6 +69,10 @@ public class ProfessorService {
         response.put("id", utilizador.getId());
         response.put("success", true);
         return ResponseEntity.ok(response);
+    }
+
+    public long getQuantidadeProfessores() {
+        return professorRepository.count();
     }
     
 

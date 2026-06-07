@@ -13,11 +13,11 @@ public class DtoDisciplina {
         this.classe = nome;
     }
 
-    public String getNomeDisciplina() {
+    public String getNome() {
         return nome;
     }
 
-    public void setgetNomeDisciplina(String nome) {
+    public void setNome(String nome) {
         this.nome = nome;
     }
 

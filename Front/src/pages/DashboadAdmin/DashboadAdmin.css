@@ -30,6 +30,7 @@
 
 .dashboard-form input[type="text"],
 .dashboard-form input[type="tel"],
+.dashboard-form input[type="password"],
 .dashboard-form input[type ="email"] {
   width: 100%;
   margin-bottom: 18px;

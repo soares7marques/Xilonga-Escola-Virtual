@@ -32,10 +32,11 @@ public class AdminController {
     private DisciplinaService disciplinaService;
     private ProfessorService professorService;
 
-    public AdminController(AdminService adminService, ClasseService nivelService,ProfessorService professorService) {
+    public AdminController(AdminService adminService, ClasseService nivelService,ProfessorService professorService,DisciplinaService disciplinaService) {
         this.adminService = adminService;
         this.nivelService = nivelService;
         this.professorService = professorService;
+        this.disciplinaService = disciplinaService;
 
     }
 
@@ -57,18 +58,23 @@ public class AdminController {
     @PostMapping("/registerDisciplina")
     public ResponseEntity<?> registerDisciplina(@Valid @RequestBody DtoDisciplina entity)
     {
-        return ResponseEntity.ok().body(disciplinaService.criarDisciplina(entity));
+        return disciplinaService.criarDisciplina(entity);
     }
 
     @GetMapping("/listaDisciplina")
     public List<Disciplina> findDisciplina() {
         return disciplinaService.ListaDisciplinas();
     }
+
+    @GetMapping("/quantidadeProfessores")
+    public ResponseEntity<?> getQuantidadeProfessores() {
+        return ResponseEntity.ok(professorService.getQuantidadeProfessores());
+    }
     
     
     @PostMapping("/registerProfessor")
     public ResponseEntity<?> registerPro(@Valid @RequestBody DtoProfessor entity)
     {
-        return ResponseEntity.ok().body(professorService.SalveProfessor(entity));
+        return professorService.SalveProfessor(entity);
     }
 }

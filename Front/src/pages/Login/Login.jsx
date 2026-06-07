@@ -33,29 +33,28 @@ const Login = () => {
       });
       
       const data = await response.json();
-      console.log('Resposta do cadastro:', data);
+      console.log('Resposta do LOGIN:', data);
 
-      if (response.ok) {
+      if (data.success) {
         // Salva todos os dados do usuário,no sessionStorage
+
         const userData = {
-          ...formData,
-          Email: data.Email || formData.email
+          email: data.email
         };
 
         sessionStorage.setItem('userData', JSON.stringify(userData));
         // login bem-sucedido
         setSuccess('login realizado com sucesso! Redirecionando...');
-
           setTimeout(() => {
-          const roleLower = data.role;
-          switch(roleLower) {
+          switch(data.role) {
             case 'ALUNO':
               navigate('/perfil',{ replace: true, state: userData });
               break;
             case 'ADMIN':
-              navigate('/dashboard',{ replace: true, state: userData });
+              navigate('/dashboard_admin',{ replace: true, state: userData });
               break;
             default:
+              navigate('/perfil',{ replace: true, state: userData });
             }
           }, 1500);
       } else {

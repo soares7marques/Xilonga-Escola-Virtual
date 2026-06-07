@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import './DashboadAdmin.css';
-import { FaUserGraduate, FaChalkboardTeacher, FaPlus, FaBookOpen, FaFileAlt, FaSignOutAlt } from 'react-icons/fa';
+import { FaUserGraduate, FaChalkboardTeacher, FaPlus, FaBookOpen, FaSignOutAlt } from 'react-icons/fa';
 
+const API_BASE_URL = "http://localhost:8080";
 
-const DashboadAdmin = ({ onCriarClasse,onSair }) => {
+const DashboadAdmin = ({ onSair }) => {
 const [quantidadeAlunos, setQuantidadeAlunos] = useState(0);
-const quantidadeClasses = 2; // valor fixo
+const [quantidadeProfessores, setQuantidadeProfessores] = useState(0);
 const [nomeProfessor, setNomeProfessor] = useState("");
 const [emailProfessor, setEmailProfessor] = useState("");
 const [senhaProfessor, setSenhaProfessor] = useState("");
+const [telefoneProfessor, setTelefoneProfessor] = useState("");
+const [generoProfessor, setGeneroProfessor] = useState("");
 
 const [activeForm, setActiveForm] = useState(null);
 const [classeNome, setClasseNome] = useState("");
 const [classeDescricao, setClasseDescricao] = useState("");
-const [semestres, setSemestres] = useState([]); // lista de semestres cadastrados
 const [classeSelecionada, setClasseSelecionada] = useState("");
-const [semestreNome, setSemestreNome] = useState("");
   
 const [feedback, setFeedback] = useState({
   tipo: "",
@@ -23,31 +24,23 @@ const [feedback, setFeedback] = useState({
 });
   // Estado para  material
 const [materialClasse, setMaterialClasse] = useState("");
-const [materialDisciplina, setDisciplinaNome] = useState("");
+const [materialDisciplina, setMaterialDisciplina] = useState("");
 
 
   
   // Simulação de lista de classes cadastradas
 const [classes, setClasses] = useState([]);
-  
-  // Listas de disciplinas e semestres
-const disciplinasDisponiveis = [
-    "Matemática",
-    "Química",
-    "Física",
-    "Biologia",
-    "História",
-    "Geografia",
-    "Português",
-    "Educação Física",
-    "Artes",
-    "Informática"
-  ];
+const [disciplinas, setDisciplinas] = useState([]);
+
+const disciplinasDisponiveis = disciplinas.filter((disciplina) => {
+  const classeDaDisciplina = disciplina.classe?.nome;
+  return !materialClasse || !classeDaDisciplina || classeDaDisciplina === materialClasse;
+});
 
 useEffect(() => {
     const fetchQuantidadeAlunos = async () => {
       try {
-        const response = await fetch('http://localhost:8080/aluno/quantidade', {
+        const response = await fetch(`${API_BASE_URL}/aluno/quantidade`, {
           headers: {"Content-Type": "application/json"}
         });
         if (response.ok) {
@@ -59,13 +52,30 @@ useEffect(() => {
     fetchQuantidadeAlunos();
   }, []);
 
+useEffect(() => {
+    const fetchQuantidadeProfessores = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/adminn/quantidadeProfessores`, {
+          headers: {"Content-Type": "application/json"}
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setQuantidadeProfessores(typeof data === 'number' ? data : Number(data));
+        }
+      } catch (e) {}
+    };
+    fetchQuantidadeProfessores();
+  }, []);
+
   const handleCadastrarProfessor = async (e) => {
   e.preventDefault();
 
   if (
     !nomeProfessor ||
     !emailProfessor ||
+    !senhaProfessor ||
     !telefoneProfessor ||
+    !generoProfessor ||
     !materialClasse ||
     !materialDisciplina
   ) {
@@ -75,7 +85,7 @@ useEffect(() => {
 
   try {
     const response = await fetch(
-      "http://localhost:8080/adminn/registerProfessor",
+      `${API_BASE_URL}/adminn/registerProfessor`,
       {
         method: "POST",
         headers: {
@@ -85,6 +95,8 @@ useEffect(() => {
           nome: nomeProfessor,
           email: emailProfessor,
           senha: senhaProfessor,
+          telefone: telefoneProfessor,
+          genero: generoProfessor,
           classe: materialClasse,
           disciplina: materialDisciplina
         })
@@ -95,13 +107,16 @@ useEffect(() => {
 
       setNomeProfessor("");
       setEmailProfessor("");
+      setSenhaProfessor("");
       setTelefoneProfessor("");
+      setGeneroProfessor("");
       setMaterialClasse("");
       setMaterialDisciplina("");
+      setQuantidadeProfessores((total) => total + 1);
 
         setFeedback({
           tipo: "sucesso",
-          mensagem: "Classe criada com sucesso!"
+          mensagem: "Professor cadastrado com sucesso!"
         });
 
         setTimeout(() => {
@@ -110,9 +125,10 @@ useEffect(() => {
         }, 4000);
       
     } else {
+      const erro = await response.text();
       setFeedback({
-        tipo: "sucesso",
-        mensagem: "Erro ao cadastrar professor.!"
+        tipo: "erro",
+        mensagem: erro || "Erro ao cadastrar professor."
         });
 
       setTimeout(() => {
@@ -122,8 +138,8 @@ useEffect(() => {
   } catch (error) {
     console.error(error);
     setFeedback({
-    tipo: "sucesso",
-      mensagem: "Erro de conexão.!"
+      tipo: "erro",
+      mensagem: "Erro de conexão."
     });
 
     setTimeout(() => {
@@ -135,7 +151,7 @@ useEffect(() => {
 const carregarClasses = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8080/adminn/listaClasse",
+        `${API_BASE_URL}/adminn/listaClasse`,
         {
           headers: {'Content-Type': 'application/json'}
         }
@@ -159,6 +175,30 @@ const carregarClasses = async () => {
   carregarClasses();
 }, []);
 
+const carregarDisciplinas = async () => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/adminn/listaDisciplina`,
+        {
+          headers: {'Content-Type': 'application/json'}
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setDisciplinas(Array.isArray(data) ? data : []);
+
+    } catch (error) {
+      console.error("Erro ao carregar disciplinas:", error);
+    }
+  }
+  useEffect(() => {
+  carregarDisciplinas();
+}, []);
+
 
 const handleCadastrarDisciplina = async (e) => {
   e.preventDefault();
@@ -170,7 +210,7 @@ const handleCadastrarDisciplina = async (e) => {
 
   try {
     const response = await fetch(
-      "http://localhost:8080/adminn/registerDisciplina",
+      `${API_BASE_URL}/adminn/registerDisciplina`,
       {
         method: "POST",
         headers: {
@@ -183,15 +223,18 @@ const handleCadastrarDisciplina = async (e) => {
       }
     );
 
-    if (response.ok) {
-      const disciplina = await response.json();
+   // console.log("Disciplina criada:", disciplina);
 
-      setDisciplinaNome("");
+    if (response.ok) {
+      const disciplina = await response.text();
+
+      setMaterialDisciplina("");
       setClasseSelecionada("");
+      carregarDisciplinas();
      
       setFeedback({
         tipo: "sucesso",
-        mensagem: "Classe criada com sucesso!"
+        mensagem: "Disciplina cadastrada com sucesso!"
       });
 
       setTimeout(() => {
@@ -204,7 +247,7 @@ const handleCadastrarDisciplina = async (e) => {
       const erro = await response.text();
       setFeedback({
         tipo: "erro",
-        mensagem: "Erro a cadastrar disciplina!"
+        mensagem: erro || "Erro ao cadastrar disciplina!"
       });
 
       setTimeout(() => {
@@ -215,7 +258,7 @@ const handleCadastrarDisciplina = async (e) => {
     console.error(error);
 
           setFeedback({
-        tipo: "Erro",
+        tipo: "erro",
         mensagem: "Erro de conexão com o servidor."
       });
 
@@ -249,7 +292,12 @@ const handleCadastrarDisciplina = async (e) => {
           <div className="dashboard-card">
             <FaChalkboardTeacher className="dashboard-icon" />
             <span className="dashboard-card-title">Classes</span>
-            <span className="dashboard-card-value">{quantidadeClasses}</span>
+            <span className="dashboard-card-value">{classes.length}</span>
+          </div>
+          <div className="dashboard-card">
+            <FaChalkboardTeacher className="dashboard-icon" />
+            <span className="dashboard-card-title">Professores</span>
+            <span className="dashboard-card-value">{quantidadeProfessores}</span>
           </div>
         </div>
 
@@ -305,7 +353,7 @@ const handleCadastrarDisciplina = async (e) => {
             // Chamada ao endpoint para criar classe
             try {
 
-              const response = await fetch('http://localhost:8080/adminn/registerClasse', {
+              const response = await fetch(`${API_BASE_URL}/adminn/registerClasse`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json'
@@ -392,7 +440,7 @@ const handleCadastrarDisciplina = async (e) => {
               </div>
           )}
 
-            <label htmlFor="titulo-input">Nome</label>
+            <label htmlFor="nome-input">Nome</label>
             <input
               id="nome-input"
               type="text"
@@ -402,7 +450,7 @@ const handleCadastrarDisciplina = async (e) => {
               required
             />
 
-            <label htmlFor="titulo-input">Email</label>
+            <label htmlFor="email-input">Email</label>
             <input
               id="email-input"
               type="email"
@@ -412,21 +460,46 @@ const handleCadastrarDisciplina = async (e) => {
               required
             />
 
-            <label htmlFor="titulo-input">Senha</label>
+            <label htmlFor="senha-input">Senha</label>
             <input
               id="senha-input"
-              type="text"
+              type="password"
               placeholder="Ex:******"
               value={senhaProfessor}
               onChange={(e) => setSenhaProfessor(e.target.value)}
               required
             />
+
+            <label htmlFor="telefone-input">Telefone</label>
+            <input
+              id="telefone-input"
+              type="tel"
+              placeholder="Ex: 923456789"
+              value={telefoneProfessor}
+              onChange={(e) => setTelefoneProfessor(e.target.value)}
+              required
+            />
+
+            <label htmlFor="genero-select">Gênero:</label>
+            <select
+              id="genero-select"
+              value={generoProfessor}
+              onChange={(e) => setGeneroProfessor(e.target.value)}
+              required
+            >
+              <option value="">Selecione o Gênero</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Feminino">Feminino</option>
+            </select>
             
             <label htmlFor="classe-select">Classe:</label>
             <select 
               id="classe-select"
               value={materialClasse} 
-              onChange={e => setMaterialClasse(e.target.value)} 
+              onChange={e => {
+                setMaterialClasse(e.target.value);
+                setMaterialDisciplina("");
+              }} 
               required
             >
 
@@ -445,7 +518,9 @@ const handleCadastrarDisciplina = async (e) => {
             >
               <option value="">Selecione a Disciplina</option>
               {disciplinasDisponiveis.map((disciplina, idx) => (
-                <option key={idx} value={disciplina}>{disciplina}</option>
+                <option key={disciplina.id ?? idx} value={disciplina.nome ?? disciplina}>
+                  {disciplina.nome ?? disciplina}
+                </option>
               ))}
             </select>
 

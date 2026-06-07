@@ -40,11 +40,10 @@ public ResponseEntity<?> login(DtoLogin request){
                     .body(Map.of("error", "Email ou senha incorretos"));
             }
                
-                // Montar resposta
-            Map<String, Object> response = new HashMap<>();
-            response.put("role", utilizador.getRole());
-            response.put("id", utilizador.getId());
-            response.put("success", true);
-            return ResponseEntity.ok(response);
+           DtoLogin dto = new DtoLogin();
+            dto.setRole(utilizador.getRole());
+            dto.setEmail(utilizador.getEmail());
+            dto.setSuccess(true);
+            return ResponseEntity.ok(dto);
     }
 }

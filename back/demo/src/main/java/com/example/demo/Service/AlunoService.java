@@ -83,8 +83,7 @@ public class AlunoService {
 
         Map<String, Object> response = new HashMap<>();
         response.put("mensagem", "Inscrição realizada com sucesso");
-
-       // response.put("classe", opt.getNome());
+        response.put("success", true);
         return ResponseEntity.ok(response);
     }
 

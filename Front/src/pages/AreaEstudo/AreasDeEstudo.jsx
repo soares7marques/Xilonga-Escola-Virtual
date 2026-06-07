@@ -47,18 +47,25 @@ const AreasDeEstudo = () => {
         }, credentials: 'include',
         body: JSON.stringify(dadosEnvio)
       });
-      if (response.ok) {
-        setMensagem('Inscrição realizada com sucesso! Redirecionando para LOGIN...');
-        setMensagemTipo('sucesso');
-        setTimeout(() => {
-          setMensagem('');
-          setMensagemTipo('');
-          navigate('/perfil', { state: { email, Ticket: ticket, SessionKey: sessionKey } });
-        }, 2000);
-      } else {
-        setMensagem('Erro ao inscrever-se. Tente novamente mais tarde.');
-        setMensagemTipo('erro');
-      }
+      const data = await response.json();
+
+        if (data.success) {
+
+          setMensagem(data.message);
+          setMensagemTipo('sucesso');
+
+          setTimeout(() => {
+            setMensagem('');
+            setMensagemTipo('');
+            navigate('/perfil', { state: { email } });
+          }, 2000);
+
+        } else {
+
+          setMensagem(data.error || 'Erro ao realizar inscrição.');
+          setMensagemTipo('erro');
+
+        }
     } catch (error) {
       setMensagem('Erro de conexão com o servidor.');
       setMensagemTipo('erro');

@@ -22,7 +22,10 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        http.csrf(csrf -> csrf.disable())
+         
+        http
+        .csrf(csrf -> csrf.disable())
+        .cors(cors -> {})
             .authorizeHttpRequests(auth -> {
                 auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
@@ -31,9 +34,14 @@ public class SecurityConfig {
                 .requestMatchers("/aluno/inscricao").permitAll()
                 .requestMatchers("/adminn/register").permitAll()
                 .requestMatchers("/adminn/listaClasse").permitAll()
+                .requestMatchers("/adminn/listaDisciplina").permitAll()
+                .requestMatchers("/adminn/quantidadeProfessores").permitAll()
                 .requestMatchers("/aluno/quantidade").permitAll()
                 .requestMatchers("/adminn/registerDisciplina").permitAll()
-                .requestMatchers("adminn/registerClasse").permitAll();
+                .requestMatchers("/adminn/registerProfessor").permitAll()
+                .requestMatchers("/aluno/perfil").permitAll()
+                .requestMatchers("/utilizador/logout").permitAll()
+                .requestMatchers("/adminn/registerClasse").permitAll();
                 auth.anyRequest().authenticated();
             });
         return http.build();
