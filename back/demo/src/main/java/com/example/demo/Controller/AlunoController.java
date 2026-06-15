@@ -41,7 +41,7 @@ public class AlunoController {
 
     // Novo endpoint GET para retornar o perfil do aluno por email
     @GetMapping("/perfil")
-    public ResponseEntity<?> getPerfilAluno(@RequestBody String email) {
+    public ResponseEntity<?> getPerfilAluno(@RequestParam String email) {
         return ResponseEntity.ok(alunoService.getPerfilAlunoPorEmail(email));
     }
 

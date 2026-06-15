@@ -1,13 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../../components/NavBarAula/NavbarAula";
 import Footer from "../../components/Footer/Footer";
 import "./ApresentacaoAula.css";
+import { API_BASE_URL, apiFetch } from "../../services/api";
 
 const ApresentacaoAula = () => {
   const [disciplinaSelected, setDisciplinaSelected] = useState(null);
   const [semestreSelected, setSemestreSelected] = useState(null);
   const [videoSelected, setVideoSelected] = useState(null);
-  const [videosAssistidos, setVideosAssistidos] = useState({});
+  const [materiaisBackend, setMateriaisBackend] = useState([]);
+  const [provasBackend, setProvasBackend] = useState([]);
+  const [carregandoConteudo, setCarregandoConteudo] = useState(false);
+  const [videoObjectUrl, setVideoObjectUrl] = useState("");
+  const [videosAssistidos, setVideosAssistidos] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("videosAssistidos") || "{}");
+    } catch {
+      return {};
+    }
+  });
 
   const disciplinas = [
     "Matemática",
@@ -103,6 +114,90 @@ const ApresentacaoAula = () => {
   });
 
   const todosVideos = { ...videos, ...disciplinasData };
+  const aulasDoSemestre = disciplinaSelected && semestreSelected
+    ? (materiaisBackend.length > 0
+      ? materiaisBackend.map((material) => ({
+        id: `material-${material.id}`,
+        materialId: material.id,
+        titulo: material.titulo,
+        nomeArquivo: material.nomeArquivo,
+        professorEmail: material.professorEmail
+      }))
+      : todosVideos[disciplinaSelected][semestreSelected])
+    : [];
+
+  useEffect(() => {
+    if (!disciplinaSelected || !semestreSelected) {
+      setMateriaisBackend([]);
+      setProvasBackend([]);
+      return;
+    }
+
+    const carregarConteudo = async () => {
+      setCarregandoConteudo(true);
+      const params = new URLSearchParams({
+        disciplina: disciplinaSelected,
+        semestre: semestreSelected
+      });
+
+      try {
+        const [materiaisResponse, provasResponse] = await Promise.all([
+          apiFetch(`${API_BASE_URL}/professor/materiais?${params.toString()}`),
+          apiFetch(`${API_BASE_URL}/professor/provas?${params.toString()}`)
+        ]);
+
+        if (materiaisResponse.ok) {
+          const materiais = await materiaisResponse.json();
+          setMateriaisBackend(Array.isArray(materiais) ? materiais : []);
+        }
+
+        if (provasResponse.ok) {
+          const provas = await provasResponse.json();
+          setProvasBackend(Array.isArray(provas) ? provas : []);
+        }
+      } catch {
+        setMateriaisBackend([]);
+        setProvasBackend([]);
+      } finally {
+        setCarregandoConteudo(false);
+      }
+    };
+
+    carregarConteudo();
+  }, [disciplinaSelected, semestreSelected]);
+
+  useEffect(() => {
+    if (!videoSelected?.materialId) {
+      setVideoObjectUrl("");
+      return;
+    }
+
+    let objectUrl = "";
+
+    const carregarVideo = async () => {
+      try {
+        const response = await apiFetch(`${API_BASE_URL}/professor/materiais/${videoSelected.materialId}/video`);
+
+        if (!response.ok) {
+          return;
+        }
+
+        const blob = await response.blob();
+        objectUrl = URL.createObjectURL(blob);
+        setVideoObjectUrl(objectUrl);
+      } catch {
+        setVideoObjectUrl("");
+      }
+    };
+
+    carregarVideo();
+
+    return () => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [videoSelected]);
 
   const handleDisciplinaClick = (disciplina) => {
     setDisciplinaSelected(disciplina);
@@ -117,18 +212,27 @@ const ApresentacaoAula = () => {
 
   const handleVideoClick = (video) => {
     setVideoSelected(video);
-    // Marcar vídeo como assistido
     const chaveVideo = `${disciplinaSelected}-${semestreSelected}-${video.id}`;
-    setVideosAssistidos(prev => ({
-      ...prev,
-      [chaveVideo]: true
-    }));
+
+    setVideosAssistidos(prev => {
+      const novoProgresso = {
+        ...prev,
+        [chaveVideo]: true
+      };
+
+      try {
+        localStorage.setItem("videosAssistidos", JSON.stringify(novoProgresso));
+      } catch {
+        // Mantém o progresso na sessão atual se o localStorage falhar.
+      }
+
+      return novoProgresso;
+    });
   };
 
   // Verificar se todas as aulas do semestre foram assistidas
   const verificarTodasAulasAssistidas = () => {
-    const aulasDoSemestre = todosVideos[disciplinaSelected][semestreSelected];
-    return aulasDoSemestre.every(video => {
+    return aulasDoSemestre.length > 0 && aulasDoSemestre.every(video => {
       const chaveVideo = `${disciplinaSelected}-${semestreSelected}-${video.id}`;
       return videosAssistidos[chaveVideo] === true;
     });
@@ -136,7 +240,10 @@ const ApresentacaoAula = () => {
 
   // Calcular progresso
   const calcularProgresso = () => {
-    const aulasDoSemestre = todosVideos[disciplinaSelected][semestreSelected];
+    if (aulasDoSemestre.length === 0) {
+      return 0;
+    }
+
     const assistidas = aulasDoSemestre.filter(video => {
       const chaveVideo = `${disciplinaSelected}-${semestreSelected}-${video.id}`;
       return videosAssistidos[chaveVideo] === true;
@@ -145,8 +252,15 @@ const ApresentacaoAula = () => {
   };
 
   const handleFazerProva = () => {
-    alert(`Iniciando prova de ${disciplinaSelected} - ${semestreSelected}!\n\nVocê assistiu todas as aulas deste semestre.`);
-    // Aqui você pode redirecionar para a página de prova ou abrir um modal
+    if (provasBackend.length === 0) {
+      alert(`Ainda não existe prova cadastrada para ${disciplinaSelected} - ${semestreSelected}.`);
+      return;
+    }
+
+    const provas = provasBackend
+      .map((prova, index) => `${index + 1}. ${prova.titulo}\n${prova.perguntas || prova.descricao || "Sem perguntas cadastradas."}`)
+      .join("\n\n");
+    alert(`Provas disponíveis para ${disciplinaSelected} - ${semestreSelected}:\n\n${provas}`);
   };
 
   const handleVoltar = () => {
@@ -203,6 +317,7 @@ const ApresentacaoAula = () => {
             <button className="btn-voltar" onClick={handleVoltar}>← Voltar</button>
             <h2>{disciplinaSelected}</h2>
             <p className="subtitulo">{semestreSelected}</p>
+            {carregandoConteudo && <p className="subtitulo">Carregando materiais e provas...</p>}
             
             {/* Barra de Progresso */}
             <div className="progresso-container">
@@ -218,7 +333,7 @@ const ApresentacaoAula = () => {
             </div>
             
             <div className="lista-videos">
-              {todosVideos[disciplinaSelected][semestreSelected].map((video) => {
+              {aulasDoSemestre.map((video) => {
                 const chaveVideo = `${disciplinaSelected}-${semestreSelected}-${video.id}`;
                 const foiAssistido = videosAssistidos[chaveVideo] === true;
                 return (
@@ -236,6 +351,9 @@ const ApresentacaoAula = () => {
 
             {/* Botão de Prova */}
             <div className="botao-prova-container">
+              {provasBackend.length > 0 && (
+                <p className="subtitulo">{provasBackend.length} prova(s) disponível(is)</p>
+              )}
               <button 
                 className={`btn-prova ${verificarTodasAulasAssistidas() ? 'habilitado' : 'desabilitado'}`}
                 onClick={handleFazerProva}
@@ -252,21 +370,37 @@ const ApresentacaoAula = () => {
             <h2>{videoSelected.titulo}</h2>
             <p className="breadcrumb">{disciplinaSelected} / {semestreSelected}</p>
             <div className="video-container">
-              <iframe
-                width="100%"
-                height="450"
-                src={`https://www.youtube.com/embed/${videoSelected.youtubeId}?rel=0&modestbranding=1`}
-                title={videoSelected.titulo}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="video-youtube"
-              ></iframe>
+              {videoSelected.youtubeId ? (
+                <iframe
+                  width="100%"
+                  height="450"
+                  src={`https://www.youtube.com/embed/${videoSelected.youtubeId}?rel=0&modestbranding=1`}
+                  title={videoSelected.titulo}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="video-youtube"
+                ></iframe>
+              ) : (
+                <div className="material-disponivel">
+                  {videoObjectUrl ? (
+                    <video controls src={videoObjectUrl} width="100%" height="360">
+                      O seu navegador não suporta vídeo HTML5.
+                    </video>
+                  ) : (
+                    <>
+                      <h3>Material disponibilizado pelo professor</h3>
+                      <p>{videoSelected.nomeArquivo || "Arquivo cadastrado no backend."}</p>
+                      <span>{videoSelected.professorEmail}</span>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
             <div className="proximos-videos">
               <h3>Próximos Vídeos</h3>
               <div className="lista-proximos">
-                {todosVideos[disciplinaSelected][semestreSelected]
+                {aulasDoSemestre
                   .filter(v => v.id !== videoSelected.id)
                   .slice(0, 3)
                   .map((video) => (

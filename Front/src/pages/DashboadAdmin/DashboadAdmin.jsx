@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './DashboadAdmin.css';
 import { FaUserGraduate, FaChalkboardTeacher, FaPlus, FaBookOpen, FaSignOutAlt } from 'react-icons/fa';
-
-const API_BASE_URL = "http://localhost:8080";
+import { API_BASE_URL, apiFetch, clearAuthSession } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const DashboadAdmin = ({ onSair }) => {
+const navigate = useNavigate();
 const [quantidadeAlunos, setQuantidadeAlunos] = useState(0);
 const [quantidadeProfessores, setQuantidadeProfessores] = useState(0);
 const [nomeProfessor, setNomeProfessor] = useState("");
@@ -12,6 +13,7 @@ const [emailProfessor, setEmailProfessor] = useState("");
 const [senhaProfessor, setSenhaProfessor] = useState("");
 const [telefoneProfessor, setTelefoneProfessor] = useState("");
 const [generoProfessor, setGeneroProfessor] = useState("");
+const [professorErros, setProfessorErros] = useState({});
 
 const [activeForm, setActiveForm] = useState(null);
 const [classeNome, setClasseNome] = useState("");
@@ -37,10 +39,84 @@ const disciplinasDisponiveis = disciplinas.filter((disciplina) => {
   return !materialClasse || !classeDaDisciplina || classeDaDisciplina === materialClasse;
 });
 
+const limparErroProfessor = (campo) => {
+  setProfessorErros((erros) => {
+    const novosErros = { ...erros };
+    delete novosErros[campo];
+    return novosErros;
+  });
+};
+
+const validarProfessor = () => {
+  const erros = {};
+  const nome = nomeProfessor.trim();
+  const email = emailProfessor.trim();
+  const telefone = telefoneProfessor.trim();
+  const telefoneRegex = /^(\+244)?\s?9\d{8}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!nome) {
+    erros.nome = "Informe o nome do professor.";
+  } else if (nome.length < 3) {
+    erros.nome = "O nome deve ter pelo menos 3 caracteres.";
+  }
+
+  if (!email) {
+    erros.email = "Informe o email.";
+  } else if (!emailRegex.test(email)) {
+    erros.email = "Informe um email válido.";
+  }
+
+  if (!senhaProfessor) {
+    erros.senha = "Informe a senha.";
+  } else if (senhaProfessor.length < 6) {
+    erros.senha = "A senha deve ter no mínimo 6 caracteres.";
+  }
+
+  if (!telefone) {
+    erros.telefone = "Informe o telefone.";
+  } else if (!telefoneRegex.test(telefone)) {
+    erros.telefone = "Use um telefone válido, ex: 923456789 ou +244 923456789.";
+  }
+
+  if (!generoProfessor) {
+    erros.genero = "Selecione o gênero.";
+  }
+
+  if (!materialClasse) {
+    erros.classe = "Selecione a classe.";
+  }
+
+  if (!materialDisciplina) {
+    erros.disciplina = "Selecione a disciplina.";
+  }
+
+  setProfessorErros(erros);
+  return Object.keys(erros).length === 0;
+};
+
+const lerMensagemErro = async (response) => {
+  const texto = await response.text();
+
+  if (!texto) {
+    return "Erro ao cadastrar professor.";
+  }
+
+  try {
+    const data = JSON.parse(texto);
+    if (Array.isArray(data)) {
+      return data.map((erro) => erro.message).filter(Boolean).join(" ");
+    }
+    return data.message || texto;
+  } catch {
+    return texto;
+  }
+};
+
 useEffect(() => {
     const fetchQuantidadeAlunos = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/aluno/quantidade`, {
+        const response = await apiFetch(`${API_BASE_URL}/aluno/quantidade`, {
           headers: {"Content-Type": "application/json"}
         });
         if (response.ok) {
@@ -55,7 +131,7 @@ useEffect(() => {
 useEffect(() => {
     const fetchQuantidadeProfessores = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/adminn/quantidadeProfessores`, {
+        const response = await apiFetch(`${API_BASE_URL}/adminn/quantidadeProfessores`, {
           headers: {"Content-Type": "application/json"}
         });
         if (response.ok) {
@@ -70,21 +146,16 @@ useEffect(() => {
   const handleCadastrarProfessor = async (e) => {
   e.preventDefault();
 
-  if (
-    !nomeProfessor ||
-    !emailProfessor ||
-    !senhaProfessor ||
-    !telefoneProfessor ||
-    !generoProfessor ||
-    !materialClasse ||
-    !materialDisciplina
-  ) {
-    alert("Preencha todos os campos.");
+  if (!validarProfessor()) {
+    setFeedback({
+      tipo: "erro",
+      mensagem: "Corrija os campos destacados antes de cadastrar."
+    });
     return;
   }
 
   try {
-    const response = await fetch(
+    const response = await apiFetch(
       `${API_BASE_URL}/adminn/registerProfessor`,
       {
         method: "POST",
@@ -92,10 +163,10 @@ useEffect(() => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          nome: nomeProfessor,
-          email: emailProfessor,
+          nome: nomeProfessor.trim(),
+          email: emailProfessor.trim(),
           senha: senhaProfessor,
-          telefone: telefoneProfessor,
+          telefone: telefoneProfessor.trim(),
           genero: generoProfessor,
           classe: materialClasse,
           disciplina: materialDisciplina
@@ -112,6 +183,7 @@ useEffect(() => {
       setGeneroProfessor("");
       setMaterialClasse("");
       setMaterialDisciplina("");
+      setProfessorErros({});
       setQuantidadeProfessores((total) => total + 1);
 
         setFeedback({
@@ -125,7 +197,7 @@ useEffect(() => {
         }, 4000);
       
     } else {
-      const erro = await response.text();
+      const erro = await lerMensagemErro(response);
       setFeedback({
         tipo: "erro",
         mensagem: erro || "Erro ao cadastrar professor."
@@ -150,7 +222,7 @@ useEffect(() => {
 
 const carregarClasses = async () => {
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `${API_BASE_URL}/adminn/listaClasse`,
         {
           headers: {'Content-Type': 'application/json'}
@@ -177,7 +249,7 @@ const carregarClasses = async () => {
 
 const carregarDisciplinas = async () => {
     try {
-      const response = await fetch(
+      const response = await apiFetch(
         `${API_BASE_URL}/adminn/listaDisciplina`,
         {
           headers: {'Content-Type': 'application/json'}
@@ -199,6 +271,15 @@ const carregarDisciplinas = async () => {
   carregarDisciplinas();
 }, []);
 
+const handleSair = () => {
+  clearAuthSession();
+  if (onSair) {
+    onSair();
+  } else {
+    navigate('/login', { replace: true });
+  }
+};
+
 
 const handleCadastrarDisciplina = async (e) => {
   e.preventDefault();
@@ -209,7 +290,7 @@ const handleCadastrarDisciplina = async (e) => {
   }
 
   try {
-    const response = await fetch(
+    const response = await apiFetch(
       `${API_BASE_URL}/adminn/registerDisciplina`,
       {
         method: "POST",
@@ -278,7 +359,7 @@ const handleCadastrarDisciplina = async (e) => {
         <button onClick={() => setActiveForm(activeForm === 'classe' ? null : 'classe')}><FaPlus style={{marginRight:8}}/>Criar Classe</button>
         <button onClick={() => setActiveForm(activeForm === 'disciplina' ? null : 'disciplina')}><FaPlus style={{marginRight:8}}/>Cadastrar Disciplina</button>
         <button onClick={() => setActiveForm(activeForm === 'material' ? null : 'material')}><FaChalkboardTeacher style={{marginRight:8}}/>Cadastar Professor</button>
-        <button className="sair" onClick={onSair}><FaSignOutAlt style={{marginRight:8}}/>Sair</button>
+        <button className="sair" onClick={handleSair}><FaSignOutAlt style={{marginRight:8}}/>Sair</button>
       </aside>
       <main className="dashboard-main">
         
@@ -353,7 +434,7 @@ const handleCadastrarDisciplina = async (e) => {
             // Chamada ao endpoint para criar classe
             try {
 
-              const response = await fetch(`${API_BASE_URL}/adminn/registerClasse`, {
+              const response = await apiFetch(`${API_BASE_URL}/adminn/registerClasse`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json'
@@ -429,7 +510,7 @@ const handleCadastrarDisciplina = async (e) => {
 
 
         {activeForm === 'material' && (
-          <form className="dashboard-form" onSubmit={handleCadastrarProfessor}>
+          <form className="dashboard-form" onSubmit={handleCadastrarProfessor} noValidate>
             <h2><FaBookOpen style={{marginRight:8}}/>Cadastrar Professor</h2>
             
           {feedback.mensagem && (
@@ -446,9 +527,14 @@ const handleCadastrarDisciplina = async (e) => {
               type="text"
               placeholder="Ex: Soares José"
               value={nomeProfessor}
-              onChange={(e) => setNomeProfessor(e.target.value)}
+              onChange={(e) => {
+                setNomeProfessor(e.target.value);
+                limparErroProfessor("nome");
+              }}
+              aria-invalid={Boolean(professorErros.nome)}
               required
             />
+            {professorErros.nome && <span className="campo-erro">{professorErros.nome}</span>}
 
             <label htmlFor="email-input">Email</label>
             <input
@@ -456,9 +542,14 @@ const handleCadastrarDisciplina = async (e) => {
               type="email"
               placeholder="Ex: soares@gmail.com"
               value={emailProfessor}
-              onChange={(e) => setEmailProfessor(e.target.value)}
+              onChange={(e) => {
+                setEmailProfessor(e.target.value);
+                limparErroProfessor("email");
+              }}
+              aria-invalid={Boolean(professorErros.email)}
               required
             />
+            {professorErros.email && <span className="campo-erro">{professorErros.email}</span>}
 
             <label htmlFor="senha-input">Senha</label>
             <input
@@ -466,9 +557,14 @@ const handleCadastrarDisciplina = async (e) => {
               type="password"
               placeholder="Ex:******"
               value={senhaProfessor}
-              onChange={(e) => setSenhaProfessor(e.target.value)}
+              onChange={(e) => {
+                setSenhaProfessor(e.target.value);
+                limparErroProfessor("senha");
+              }}
+              aria-invalid={Boolean(professorErros.senha)}
               required
             />
+            {professorErros.senha && <span className="campo-erro">{professorErros.senha}</span>}
 
             <label htmlFor="telefone-input">Telefone</label>
             <input
@@ -476,21 +572,31 @@ const handleCadastrarDisciplina = async (e) => {
               type="tel"
               placeholder="Ex: 923456789"
               value={telefoneProfessor}
-              onChange={(e) => setTelefoneProfessor(e.target.value)}
+              onChange={(e) => {
+                setTelefoneProfessor(e.target.value);
+                limparErroProfessor("telefone");
+              }}
+              aria-invalid={Boolean(professorErros.telefone)}
               required
             />
+            {professorErros.telefone && <span className="campo-erro">{professorErros.telefone}</span>}
 
             <label htmlFor="genero-select">Gênero:</label>
             <select
               id="genero-select"
               value={generoProfessor}
-              onChange={(e) => setGeneroProfessor(e.target.value)}
+              onChange={(e) => {
+                setGeneroProfessor(e.target.value);
+                limparErroProfessor("genero");
+              }}
+              aria-invalid={Boolean(professorErros.genero)}
               required
             >
               <option value="">Selecione o Gênero</option>
               <option value="Masculino">Masculino</option>
               <option value="Feminino">Feminino</option>
             </select>
+            {professorErros.genero && <span className="campo-erro">{professorErros.genero}</span>}
             
             <label htmlFor="classe-select">Classe:</label>
             <select 
@@ -499,7 +605,10 @@ const handleCadastrarDisciplina = async (e) => {
               onChange={e => {
                 setMaterialClasse(e.target.value);
                 setMaterialDisciplina("");
+                limparErroProfessor("classe");
+                limparErroProfessor("disciplina");
               }} 
+              aria-invalid={Boolean(professorErros.classe)}
               required
             >
 
@@ -508,12 +617,17 @@ const handleCadastrarDisciplina = async (e) => {
                 <option key={idx} value={classe.nome}>{classe.nome}</option>
               ))}
             </select>
+            {professorErros.classe && <span className="campo-erro">{professorErros.classe}</span>}
 
             <label htmlFor="disciplina-select">Disciplina:</label>
             <select 
               id="disciplina-select"
               value={materialDisciplina} 
-              onChange={e => setMaterialDisciplina(e.target.value)} 
+              onChange={e => {
+                setMaterialDisciplina(e.target.value);
+                limparErroProfessor("disciplina");
+              }} 
+              aria-invalid={Boolean(professorErros.disciplina)}
               required
             >
               <option value="">Selecione a Disciplina</option>
@@ -523,6 +637,7 @@ const handleCadastrarDisciplina = async (e) => {
                 </option>
               ))}
             </select>
+            {professorErros.disciplina && <span className="campo-erro">{professorErros.disciplina}</span>}
 
             <button type="submit">
               <FaBookOpen style={{marginRight:8}} />

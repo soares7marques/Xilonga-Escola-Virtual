@@ -2,11 +2,11 @@ package com.example.demo.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.Dto.DtoProfessor;
 import com.example.demo.Exeception.ExceptionDadosDuplicado;
@@ -36,16 +36,24 @@ public class ProfessorService {
         this.disciplinaRepository = disciplinaRepository;
     }
 
+    @Transactional
     public ResponseEntity<?> SalveProfessor(DtoProfessor request){
         utilizadorRepository.findByEmail(request.getEmail())
         .ifPresent((user)->{
             throw new ExceptionDadosDuplicado();
         });
+
+        Classe optClasse = classeRepository.findByNome(request.getClasse())
+            .orElseThrow(() -> new IllegalArgumentException("Classe não encontrada"));
+
+        Disciplina otp = disciplinaRepository.findByClasseAndNome(optClasse, request.getDisciplina())
+            .orElseThrow(() -> new IllegalArgumentException("Disciplina não encontrada para a classe selecionada"));
+
         // Encriptar a senha antes de salvar
         Utilizador utilizador = new Utilizador();
         String senhaEncriptada = passwordEncoder.encode(request.getSenha());
         utilizador.setSenha(senhaEncriptada);
-        utilizador.setRole("professor"); // Definir a role padrão para o usuário
+        utilizador.setRole("PROFESSOR"); // Definir a role padrão para o usuário
         utilizador.setNome(request.getNome());
         utilizador.setEmail(request.getEmail());
         utilizador.setTelefone(request.getTelefone());
@@ -53,12 +61,6 @@ public class ProfessorService {
 
         utilizadorRepository.save(utilizador);
         Professor prof = new Professor();
-
-        Optional<Classe> opt = classeRepository.findByNome(request.getClasse());
-        Classe optClasse = opt.get();
-
-        Optional<Disciplina> disc = disciplinaRepository.findByClasseAndNome(optClasse, request.getDisciplina());
-        Disciplina otp = disc.get();
         prof.setUtilizador(utilizador);
         prof.setClasse(optClasse);
         prof.setDisciplina(otp);

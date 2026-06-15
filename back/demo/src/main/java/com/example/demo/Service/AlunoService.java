@@ -51,7 +51,7 @@ public class AlunoService {
         aluno.setUtilizador(utilizador);
         alunoRepository.save(aluno);
 
-        // 3. Retornar ticket e chave de sessão ao cliente
+
         return ResponseEntity.ok().body(Map.of(
             "Email", utilizador.getEmail()
         ));
@@ -63,26 +63,33 @@ public class AlunoService {
         Utilizador utilizador = utilizadorRepository.findByEmail(dto.getEmail())
             .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
+        Aluno aluno = alunoRepository.findByUtilizador(utilizador)
+            .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+
         // Buscar área pelo nome
-        var opt = classeRepository.findByNome(dto.getClasse());
-        if (opt == null) {
+        Optional<Classe> opt = classeRepository.findByNome(dto.getClasse());
+        if (opt.isEmpty()) {
             throw new RuntimeException("Área de estudo não encontrada");
         }
+        Classe classe = opt.get();
 
         // Verificar se já está inscrito (por idAluno e idArea)
-      //  Inscricao existente = inscricaoRepository.findByIdAlunoAndIdClasse(utilizador.getId(), opt.getId());
-      //  if (existente != null) {
-           // throw new RuntimeException("Aluno já está inscrito nesta área");
-        //}
+        Inscricao existente = inscricaoRepository.findByIdAlunoAndIdClasse(aluno.getId(), classe.getId());
+        if (existente != null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Aluno já está inscrito nesta classe");
+            response.put("success", false);
+            return ResponseEntity.badRequest().body(response);
+        }
 
         // Criar inscrição
         Inscricao alunoClasse = new Inscricao();
-       // alunoClasse.setIdAluno(utilizador.getId());
-        //alunoClasse.setidClasse(opt.getId());
+        alunoClasse.setIdAluno(aluno.getId());
+        alunoClasse.setidClasse(classe.getId());
         inscricaoRepository.save(alunoClasse);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("mensagem", "Inscrição realizada com sucesso");
+        response.put("message", "Inscrição realizada com sucesso");
         response.put("success", true);
         return ResponseEntity.ok(response);
     }
@@ -105,18 +112,17 @@ public class AlunoService {
             .findFirst().orElse(null);
 
         String classeEstudo = null;
-        if (inscricao != null) {
-            var classe = classeRepository.findById(inscricao.getIdClasse());
-            if (classe != null) {
-                Classe opt = classe.get();
-                classeEstudo = opt.getNome();
-            }
+        if (inscricao != null && inscricao.getIdClasse() != null) {
+            classeEstudo = classeRepository.findById(inscricao.getIdClasse())
+                .map(Classe::getNome)
+                .orElse("");
         }
 
         Map<String, Object> perfil = new HashMap<>();
         perfil.put("nome", utilizador.getNome());
         perfil.put("contacto", utilizador.getTelefone());
         perfil.put("email", utilizador.getEmail());
+        perfil.put("genero", utilizador.getGenero());
         perfil.put("classe", classeEstudo != null ? classeEstudo : "");
         perfil.put("pontuacao", aluno.getPontuacao());
         return perfil;

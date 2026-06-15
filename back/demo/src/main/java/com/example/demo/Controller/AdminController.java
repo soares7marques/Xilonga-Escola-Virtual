@@ -21,12 +21,11 @@ import com.example.demo.model.Utilizador;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 
-
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RequestMapping("/adminn")
 @RestController
 public class AdminController {
-    
+
     private AdminService adminService;
     private ClasseService nivelService;
     private DisciplinaService disciplinaService;

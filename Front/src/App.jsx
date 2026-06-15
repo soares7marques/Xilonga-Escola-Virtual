@@ -25,22 +25,34 @@ function App() {
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/esqueci-senha" element={<EsqueciSenha/>}/>
 
-          <Route path="/aula" element={<ApresentacaoAula />} />
+          <Route path="/aula" element={
+            <ProtectedRoute>
+              <ApresentacaoAula />
+            </ProtectedRoute>
+          } />
           
           <Route path="/areaEstudo" element={
+            <ProtectedRoute>
               <AreasDeEstudo />
+            </ProtectedRoute>
           } />
 
           <Route path="/perfil" element={
+            <ProtectedRoute>
               <Perfil />
+            </ProtectedRoute>
           } />
 
           <Route path="/dashboard_Professor" element={
+            <ProtectedRoute>
               <DashboardProf />
+            </ProtectedRoute>
           } />
 
            <Route path="/dashboard_admin" element={
+            <ProtectedRoute>
               <DashboadAdmin />
+            </ProtectedRoute>
           } />
 
         </Routes>

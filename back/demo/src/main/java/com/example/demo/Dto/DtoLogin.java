@@ -1,7 +1,5 @@
 package com.example.demo.Dto;
 
-import java.util.function.BiConsumer;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -20,12 +18,42 @@ public class DtoLogin {
 
     private Boolean success;
 
+    private String token;
+
+    private String tokenType;
+
+    private Long expiresAt;
+
     public Boolean getSuccess(){
         return success;
     }
 
     public void setSuccess(Boolean success){
         this.success = success;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
+    }
+
+    public Long getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(Long expiresAt) {
+        this.expiresAt = expiresAt;
     }
 
     public String getRole(){

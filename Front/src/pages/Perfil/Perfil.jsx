@@ -1,164 +1,205 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import './Perfil.css';
 import Navbar from '../../components/NavBarAula/NavbarAula';
 import Footer from '../../components/Footer/Footer';
 import '../../App.css';
+import { useLocation } from 'react-router-dom';
+import { API_BASE_URL, apiFetch } from '../../services/api';
 
+const DEFAULT_STUDENT = {
+  foto: '',
+  nome: 'Estudante',
+  contacto: 'Não informado',
+  email: '',
+  genero: 'Não informado',
+  classe: 'Não inscrito',
+  pontuacao: '0',
+};
+
+const getInitialEmail = (stateData = {}) => {
+  try {
+    const sessionData = JSON.parse(sessionStorage.getItem('userData')) || {};
+    return stateData.Email || stateData.email || sessionData.Email || sessionData.email || '';
+  } catch {
+    return stateData.Email || stateData.email || '';
+  }
+};
+
+const getSavedPhoto = () => {
+  try {
+    return localStorage.getItem('perfilFoto') || '';
+  } catch {
+    return '';
+  }
+};
 
 const Perfil = () => {
-  let sessionData = {};
-  try {
-    sessionData = JSON.parse(sessionStorage.getItem('userData')) || {};
-  } catch (e) {}
-
-  const email = sessionData.Email || sessionData.email;
+  const location = useLocation();
+  const email = getInitialEmail(location.state || {});
+  const fileInputRef = useRef(null);
 
   const [estudante, setEstudante] = useState({
-    foto: '', // URL ou base64 da foto do estudante
-    nome: 'João Silva',
-    contacto: '+244 923 456 789',
-    email: email,
-    classe: '7ª classe',
+    ...DEFAULT_STUDENT,
+    email,
+    foto: getSavedPhoto(),
   });
-
-  const fileInputRef = React.useRef(null);
-
-  const [disciplinaProgress, setDisciplinaProgress] = useState([]);
-  const [totalAssistidas, setTotalAssistidas] = useState(0);
+  const [estadoPerfil, setEstadoPerfil] = useState('idle');
+  const [erroPerfil, setErroPerfil] = useState('');
 
   const handleFotoClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    fileInputRef.current?.click();
   };
 
   const handleFotoChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setEstudante((prev) => ({ ...prev, foto: e.target.result }));
-      };
-      reader.readAsDataURL(file);
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const foto = e.target.result;
+      setEstudante((prev) => ({ ...prev, foto }));
+
+      try {
+        localStorage.setItem('perfilFoto', foto);
+      } catch {
+        // Mantém a foto na sessão mesmo se o navegador bloquear o localStorage.
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
-  // Buscar perfil e agrupar progresso
   useEffect(() => {
     setEstudante((prev) => ({
       ...prev,
-      email: email
+      email,
     }));
 
     const fetchPerfil = async () => {
-      try {
-        const response = await fetch(`http://localhost:8080/aluno/perfil`,
-          {
-        headers: {
-          'Content-Type': 'application/json',
-        }, credentials: 'include',
-         body: JSON.stringify({email})
-          }
+      setEstadoPerfil('loading');
+      setErroPerfil('');
 
+      try {
+        const response = await apiFetch(
+          `${API_BASE_URL}/aluno/perfil?email=${encodeURIComponent(email)}`,
+          {
+            method: 'GET',
+          }
         );
-        if (response.ok) {
-          const data = await response.json();
-          setEstudante((prev) => ({
-            ...prev,
-            nome: data.nome || prev.nome,
-            contacto: data.contacto || prev.contacto,
-            email: data.email || prev.email,
-            classe: data.classe || prev.classe,
-          }));
+
+        console.log("Status:", response.status);
+        console.log("StatusText:", response.statusText);
+        
+        if (!response.ok) {
+          throw new Error('Não foi possível carregar os dados do perfil.');
         }
-      } catch (e) {
-        // erro silencioso
+
+        const data = await response.json();
+
+        setEstudante((prev) => ({
+          ...prev,
+          nome: data.nome || data.Nome || prev.nome,
+          contacto: data.contacto || data.Contacto || prev.contacto,
+          email: data.email || data.Email || prev.email,
+          genero: data.genero || data.Genero || prev.genero,
+          classe: data.classe || data.Classe || 'Não inscrito',
+          pontuacao: data.pontuacao || data.Pontuacao || prev.pontuacao,
+        }));
+        setEstadoPerfil('success');
+      } catch {
+        setErroPerfil('Não foi possível atualizar os dados agora.');
+        setEstadoPerfil('error');
       }
     };
 
-    if (email) {
+    if (!email) {
+      setEstadoPerfil('error');
+      setErroPerfil('Faça login para carregar os dados do perfil.');
+    } else {
       fetchPerfil();
     }
-
-    // Agrupar progresso por disciplina-semestre a partir das chaves em localStorage
-    try {
-      const videos = JSON.parse(localStorage.getItem('videosAssistidos') || '{}');
-      const groups = {};
-      Object.keys(videos).forEach((key) => {
-        // espera chave no formato "Disciplina-Semestre-id"
-        const parts = key.split('-');
-        if (parts.length >= 3 && videos[key] === true) {
-          const disciplina = parts[0].trim();
-          const semestre = parts[1].trim();
-          const label = `${disciplina} - ${semestre}`;
-          groups[label] = (groups[label] || 0) + 1;
-        }
-      });
-      const progArray = Object.keys(groups).map((k) => ({ nome: k, count: groups[k] }));
-      setDisciplinaProgress(progArray);
-      const total = progArray.reduce((s, p) => s + p.count, 0);
-      setTotalAssistidas(total);
-    } catch (e) {
-      setDisciplinaProgress([]);
-      setTotalAssistidas(0);
-    }
   }, [email]);
-
-  const maxCount = disciplinaProgress.length ? Math.max(...disciplinaProgress.map(d => d.count)) : 1;
 
   return (
     <div className="perfil-container">
       <Navbar />
       <main className="perfil-main">
-        <section className="perfil-dados">
-          <div className="perfil-foto">
-            <img
-              src={estudante.foto || '/imagem/Equipa.png'} // Foto ou imagem padrão
-              alt="Foto do estudante"
-              style={{ cursor: 'pointer' }}
+        <section className="perfil-hero" aria-labelledby="perfil-title">
+          <div className="perfil-avatar-area">
+            <button
+              className="perfil-avatar-button"
+              type="button"
               onClick={handleFotoClick}
-            />
+              aria-label="Alterar foto do estudante"
+            >
+              <img
+                src={estudante.foto || '/imagem/Equipa.png'}
+                alt="Foto do estudante"
+              />
+              <span className="avatar-camera" aria-hidden="true">
+                <i className="fas fa-camera"></i>
+              </span>
+            </button>
             <input
               type="file"
               accept="image/*"
               ref={fileInputRef}
-              style={{ display: 'none' }}
+              className="perfil-file-input"
               onChange={handleFotoChange}
             />
-            <p style={{ fontSize: '0.9em', color: '#888', marginTop: '8px' }}>Clique na foto para alterar</p>
-          </div>
-          <div className="perfil-info">
-            <h2>Dados do Estudante</h2>
-            <p><strong>Nome:</strong> {estudante.nome}</p>
-            <p><strong>Contacto:</strong> {estudante.contacto}</p>
-            <p><strong>Email:</strong> {estudante.email}</p>
-            <p><strong>Classe:</strong> {estudante.classe}</p>
           </div>
 
-          <div className="perfil-progress">
-            <h3>Progresso por Disciplina</h3>
-            <p className="total-assistidas">Total aulas assistidas: {totalAssistidas}</p>
-            <div className="progress-list">
-              {disciplinaProgress.length === 0 ? (
-                <p className="nenhuma-atividade">Nenhuma atividade registrada</p>
-              ) : (
-                disciplinaProgress.map((item) => (
-                  <div className="progress-row" key={item.nome}>
-                    <div className="progress-label">{item.nome}</div>
-                    <div className="progress-bar">
-                      <div className="progress-fill" style={{ width: `${Math.round((item.count / maxCount) * 100)}%` }} />
-                    </div>
-                    <div className="progress-count">{item.count}</div>
-                  </div>
-                ))
-              )}
-            </div>
+          <div className="perfil-hero-info">
+            <p className="perfil-eyebrow">Perfil do estudante</p>
+            <h1 id="perfil-title">{estudante.nome}</h1>
+            <p>{estudante.classe} · {estudante.email || 'Email não informado'}</p>
+            {estadoPerfil === 'loading' && (
+              <span className="perfil-status">Atualizando dados...</span>
+            )}
+            {estadoPerfil === 'error' && erroPerfil && (
+              <span className="perfil-status perfil-status-error">{erroPerfil}</span>
+            )}
           </div>
         </section>
 
+        <section className="perfil-content">
+          <article className="perfil-card perfil-info-card">
+            <div className="section-heading">
+              <div>
+                <p className="perfil-eyebrow">Dados pessoais</p>
+                <h2>Informações do estudante</h2>
+              </div>
+            </div>
+
+            <div className="info-grid">
+              <div className="info-item">
+                <span>Nome</span>
+                <strong>{estudante.nome}</strong>
+              </div>
+              <div className="info-item">
+                <span>Contacto</span>
+                <strong>{estudante.contacto}</strong>
+              </div>
+              <div className="info-item">
+                <span>Email</span>
+                <strong>{estudante.email || 'Não informado'}</strong>
+              </div>
+              <div className="info-item">
+                <span>Género</span>
+                <strong>{estudante.genero || 'Não informado'}</strong>
+              </div>
+              <div className="info-item">
+                <span>Classe</span>
+                <strong>{estudante.classe}</strong>
+              </div>
+            </div>
+          </article>
+        </section>
       </main>
-       <Footer />
+      <Footer />
     </div>
   );
 };

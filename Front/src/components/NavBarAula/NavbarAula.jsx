@@ -1,23 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./NavbarAula.css";
+import { clearAuthSession } from "../../services/api";
 
 const NavbarAula = () => {
   const navigate = useNavigate();
 
   const handleSair = async () => {
     if (window.confirm("Você realmente deseja sair do site?")) {
-      // Chama o endpoint de logout para remover o cookie do token
-      try {
-        await fetch("http://localhost:8080/utilizador/logout", {
-          method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        }, credentials: 'include',
-        });
-      } catch (e) {
-        // Ignora erro de rede
-      }
-      sessionStorage.clear();
+      clearAuthSession();
       navigate("/login");
       console.log("Usuário saiu do site.");
     }

@@ -1,0 +1,21 @@
+services:
+  xilongaBD:
+    image: postgres:16-alpine
+    container_name: xilongaBD
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: xilongaBD
+      POSTGRES_USER: xilonga
+      POSTGRES_PASSWORD: xilonga123
+    ports:
+      - "5432:5432"
+    volumes:
+      - xilongaBD_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xilonga -d xilongaBD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  xilongaBD_data:

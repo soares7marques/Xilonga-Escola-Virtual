@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import '../../App.css';
+import { setAuthSession } from '../../services/api';
 
 
 const Login = () => {
@@ -35,15 +36,20 @@ const Login = () => {
       const data = await response.json();
       console.log('Resposta do LOGIN:', data);
 
-      if (data.success) {
-        // Salva todos os dados do usuário,no sessionStorage
-
+      if (data.success && data.token) {
         const userData = {
-          email: data.email
+          email: data.email,
+          role: data.role,
+          expiresAt: data.expiresAt
         };
 
-        sessionStorage.setItem('userData', JSON.stringify(userData));
-        // login bem-sucedido
+        setAuthSession({
+          token: data.token,
+          email: data.email,
+          role: data.role,
+          expiresAt: data.expiresAt
+        });
+        login();
         setSuccess('login realizado com sucesso! Redirecionando...');
           setTimeout(() => {
           switch(data.role) {
@@ -53,8 +59,9 @@ const Login = () => {
             case 'ADMIN':
               navigate('/dashboard_admin',{ replace: true, state: userData });
               break;
-            default:
-              navigate('/perfil',{ replace: true, state: userData });
+            case 'PROFESSOR':  
+              navigate('/dashboard_Professor',{ replace: true, state: userData });
+              break;
             }
           }, 1500);
       } else {

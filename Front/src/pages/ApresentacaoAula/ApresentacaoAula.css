@@ -412,6 +412,25 @@
   transform: none;
 }
 
+.material-disponivel {
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 32px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #1f2937;
+  text-align: center;
+}
+
+.material-disponivel p,
+.material-disponivel span {
+  color: #64748b;
+}
+
 @media (max-width: 480px) {
   .area-estudo {
     padding: 20px;

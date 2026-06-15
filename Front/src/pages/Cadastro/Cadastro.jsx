@@ -76,15 +76,11 @@ const OPCOES = [
         // Corrige para acessar data.body se necessário
         const body = data.body || data;
         const userData = {
-          ...formData,
           email: (body.Email || formData.email)
         };
-        sessionStorage.setItem('userData', JSON.stringify(userData));
-        // Cadastro bem-sucedido
-        setSuccess('Cadastro realizado com sucesso! Redirecionando...');
-        // Aguardar 2 segundos antes de redirecionar
+        setSuccess('Cadastro realizado com sucesso! Faça login para continuar.');
         setTimeout(() => {
-          navigate('/areaEstudo', { replace: true, state: userData });
+          navigate('/login', { replace: true, state: userData });
         }, 2000);
       } else {
         setError(data.error || 'Erro ao criar conta. Tente novamente.');
