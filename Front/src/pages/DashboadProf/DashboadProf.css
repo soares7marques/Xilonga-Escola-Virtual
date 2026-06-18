@@ -57,6 +57,11 @@
   margin-bottom: 26px;
 }
 
+.dashboard-form input[readonly] {
+  color: #475569;
+  background: #eef2f7;
+}
+
 .dashboard-form button[type="submit"] {
   width: 100%;
   margin-top: 8px;
@@ -75,6 +80,11 @@
 
 .dashboard-form button[type="submit"]:hover {
   background: #357ab8;
+}
+
+.dashboard-form button[type="submit"]:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
 }
 .dashboard-container {
   display: flex;
@@ -172,6 +182,35 @@
   font-weight: bold;
 }
 
+.dashboard-card-value.texto-card {
+  font-size: 1.25rem;
+  text-align: center;
+  max-width: 180px;
+  overflow-wrap: anywhere;
+}
+
+.feedback-upload {
+  margin: -8px 0 18px;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.feedback-upload.sucesso {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.feedback-upload.erro {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.feedback-upload.info {
+  color: #1e3a8a;
+  background: #dbeafe;
+}
+
 .dashboard-list-panel {
   width: min(100%, 980px);
   margin-top: 32px;
@@ -191,6 +230,10 @@
   grid-template-columns: 1fr 1fr auto;
   gap: 12px;
   margin-bottom: 24px;
+}
+
+.dashboard-filtros-simples {
+  grid-template-columns: 1fr auto;
 }
 
 .dashboard-filtros select,

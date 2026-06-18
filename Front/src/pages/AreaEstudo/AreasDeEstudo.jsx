@@ -9,31 +9,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FaBookOpen, FaCheckCircle, FaGraduationCap, FaSearch, FaUsers } from 'react-icons/fa';
 import { API_BASE_URL} from '../../services/api';
 
-const areasFallback = [
-  {
-    id: 1,
-    nome: '7ª Classe',
-    descricao: 'Base para reforçar leitura, cálculo, ciências e hábitos de estudo.',
-    imagem: '/imagem/escola1.jpeg',
-    disciplinas: ['Português', 'Matemática', 'Física', 'Química'],
-    cor: '#5cd8d0',
-    nivel: 'Primeiro nível',
-    estatisticas: { estudantes: 0, modulos: 4, taxa_sucesso: 0 },
-    passos: ['Assistir aula introdutória', 'Organizar plano semanal', 'Resolver simulado diagnóstico']
-  },
-  {
-    id: 2,
-    nome: '8ª Classe',
-    descricao: 'Continuidade para ganhar ritmo, autonomia e confiança nas disciplinas-chave.',
-    imagem: '/imagem/escola2.jpeg',
-    disciplinas: ['Português', 'Matemática', 'Física', 'Química'],
-    cor: '#7be6df',
-    nivel: 'Segundo nível',
-    estatisticas: { estudantes: 0, modulos: 4, taxa_sucesso: 0 },
-    passos: ['Rever conteúdos essenciais', 'Baixar material de apoio', 'Acompanhar progresso no perfil']
-  },
-];
-
 const calcularResumo = (areas) => {
   const totalModulos = areas.reduce((total, area) => total + Number(area.estatisticas?.modulos || 0), 0);
   const totalEstudantes = areas.reduce((total, area) => total + Number(area.estatisticas?.estudantes || 0), 0);
@@ -66,10 +41,9 @@ const AreasDeEstudo = () => {
 
   const [selectedArea, setSelectedArea] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [areas, setAreas] = useState(areasFallback);
-  const [resumo, setResumo] = useState(calcularResumo(areasFallback));
+  const [areas, setAreas] = useState([]);
+  const [resumo, setResumo] = useState(calcularResumo([]));
   const [carregandoAreas, setCarregandoAreas] = useState(true);
-  const [usandoFallback, setUsandoFallback] = useState(false);
   const [animateCards, setAnimateCards] = useState(false);
   const [mensagem, setMensagem] = useState('');
   const [mensagemTipo, setMensagemTipo] = useState(''); // 'sucesso' ou 'erro'
@@ -105,20 +79,15 @@ const AreasDeEstudo = () => {
         const areasRecebidas = Array.isArray(data.areas) ? data.areas : [];
         setAreas(areasRecebidas);
         setResumo(data.resumo || calcularResumo(areasRecebidas));
-        setUsandoFallback(false);
       } catch (error) {
         if (error.name === 'AbortError') {
           return;
         }
 
-        const areasFiltradas = areasFallback.filter(area =>
-          area.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          area.descricao.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          area.disciplinas.some(disc => disc.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
-        setAreas(areasFiltradas);
-        setResumo(calcularResumo(areasFiltradas));
-        setUsandoFallback(true);
+        setAreas([]);
+        setResumo(calcularResumo([]));
+        setMensagem('Não foi possível carregar as classes do servidor.');
+        setMensagemTipo('erro');
       } finally {
         setCarregandoAreas(false);
       }
@@ -250,11 +219,6 @@ const AreasDeEstudo = () => {
           </div>
           <p>{carregandoAreas ? 'A carregar...' : `${filteredAreas.length} resultado(s) encontrado(s)`}</p>
         </div>
-        {usandoFallback && (
-          <div className="areas-api-status">
-            Não foi possível carregar os dados do servidor. A mostrar dados temporários.
-          </div>
-        )}
         <div className="cards-grid">
           {filteredAreas.map((area, index) => (
             <div
@@ -274,12 +238,12 @@ const AreasDeEstudo = () => {
                 <h3>{area.nome}</h3>
                 <p>{area.descricao}</p>
                 <div className="card-stats">
-                  <span><FaUsers aria-hidden="true" /> {area.estatisticas.estudantes.toLocaleString('pt-PT')} estudantes</span>
-                  <span><FaBookOpen aria-hidden="true" /> {area.estatisticas.modulos} módulos</span>
-                  <span><FaCheckCircle aria-hidden="true" /> {area.estatisticas.taxa_sucesso}% sucesso</span>
+                  <span><FaUsers aria-hidden="true" /> {Number(area.estatisticas?.estudantes || 0).toLocaleString('pt-PT')} estudantes</span>
+                  <span><FaBookOpen aria-hidden="true" /> {area.estatisticas?.modulos || 0} módulos</span>
+                  <span><FaCheckCircle aria-hidden="true" /> {area.estatisticas?.taxa_sucesso || 0}% sucesso</span>
                 </div>
                 <div className="disciplinas-list">
-                  {area.disciplinas.map((disc, idx) => (
+                  {(area.disciplinas || []).map((disc, idx) => (
                     <span key={idx} className="disciplina-tag">
                       {disc}
                     </span>
@@ -292,7 +256,7 @@ const AreasDeEstudo = () => {
                   <div className="card-details">
                     <h4>Próximos Passos:</h4>
                     <ul>
-                      {area.passos.map((passo) => (
+                      {(area.passos || []).map((passo) => (
                         <li key={passo}>{passo}</li>
                       ))}
                     </ul>
@@ -319,7 +283,7 @@ const AreasDeEstudo = () => {
                 <h4>{area.nome}</h4>
                 <p>{area.descricao}</p>
                 <div className="disciplinas-small">
-                  {area.disciplinas.map((disc, idx) => (
+                  {(area.disciplinas || []).map((disc, idx) => (
                     <span key={idx}>{disc}</span>
                   ))}
                 </div>

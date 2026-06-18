@@ -60,6 +60,10 @@ public class ProfessorService {
         utilizador.setGenero(request.getGenero());
 
         utilizadorRepository.save(utilizador);
+        professorRepository.findByUtilizador(utilizador).ifPresent(professor -> {
+            throw new IllegalArgumentException("Professor já possui classe e disciplina associadas.");
+        });
+
         Professor prof = new Professor();
         prof.setUtilizador(utilizador);
         prof.setClasse(optClasse);
@@ -75,6 +79,22 @@ public class ProfessorService {
 
     public long getQuantidadeProfessores() {
         return professorRepository.count();
+    }
+
+    public Map<String, Object> getPerfilPorEmail(String email) {
+        Utilizador utilizador = utilizadorRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Professor não encontrado"));
+
+        Professor professor = professorRepository.findByUtilizador(utilizador)
+            .orElseThrow(() -> new RuntimeException("Dados do professor não encontrados"));
+
+        Map<String, Object> perfil = new HashMap<>();
+        perfil.put("nome", utilizador.getNome());
+        perfil.put("email", utilizador.getEmail());
+        perfil.put("role", utilizador.getRole());
+        perfil.put("classe", professor.getClasse() == null ? "" : professor.getClasse().getNome());
+        perfil.put("disciplina", professor.getDisciplina() == null ? "" : professor.getDisciplina().getNome());
+        return perfil;
     }
     
 

@@ -19,6 +19,7 @@ const [activeForm, setActiveForm] = useState(null);
 const [classeNome, setClasseNome] = useState("");
 const [classeDescricao, setClasseDescricao] = useState("");
 const [classeSelecionada, setClasseSelecionada] = useState("");
+const [semestreNome, setSemestreNome] = useState("");
   
 const [feedback, setFeedback] = useState({
   tipo: "",
@@ -29,10 +30,9 @@ const [materialClasse, setMaterialClasse] = useState("");
 const [materialDisciplina, setMaterialDisciplina] = useState("");
 
 
-  
-  // Simulação de lista de classes cadastradas
 const [classes, setClasses] = useState([]);
 const [disciplinas, setDisciplinas] = useState([]);
+const [semestres, setSemestres] = useState([]);
 
 const disciplinasDisponiveis = disciplinas.filter((disciplina) => {
   const classeDaDisciplina = disciplina.classe?.nome;
@@ -271,6 +271,30 @@ const carregarDisciplinas = async () => {
   carregarDisciplinas();
 }, []);
 
+const carregarSemestres = async () => {
+    try {
+      const response = await apiFetch(
+        `${API_BASE_URL}/adminn/listaSemestre`,
+        {
+          headers: {'Content-Type': 'application/json'}
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setSemestres(Array.isArray(data) ? data : []);
+
+    } catch (error) {
+      console.error("Erro ao carregar semestres:", error);
+    }
+  }
+  useEffect(() => {
+  carregarSemestres();
+}, []);
+
 const handleSair = () => {
   clearAuthSession();
   if (onSair) {
@@ -349,6 +373,55 @@ const handleCadastrarDisciplina = async (e) => {
   }
 };
 
+const handleCadastrarSemestre = async (e) => {
+  e.preventDefault();
+
+  if (!semestreNome.trim()) {
+    setFeedback({
+      tipo: "erro",
+      mensagem: "Informe o nome do semestre."
+    });
+    return;
+  }
+
+  try {
+    const response = await apiFetch(`${API_BASE_URL}/adminn/registerSemestre`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        nome: semestreNome.trim()
+      }),
+    });
+
+    if (response.ok) {
+      setSemestreNome("");
+      carregarSemestres();
+      setFeedback({
+        tipo: "sucesso",
+        mensagem: "Semestre cadastrado com sucesso!"
+      });
+
+      setTimeout(() => {
+        setActiveForm(null);
+        setFeedback({ tipo: "", mensagem: "" });
+      }, 3000);
+    } else {
+      const erro = await response.text();
+      setFeedback({
+        tipo: "erro",
+        mensagem: erro || "Erro ao cadastrar semestre."
+      });
+    }
+  } catch {
+    setFeedback({
+      tipo: "erro",
+      mensagem: "Erro de conexão com o servidor."
+    });
+  }
+};
+
   return (
     <div className="dashboard-container">
       {/* Exemplo de uso dos dados do usuário */}
@@ -357,6 +430,7 @@ const handleCadastrarDisciplina = async (e) => {
       <aside className="dashboard-sidebar">
         <h2>Menu</h2>
         <button onClick={() => setActiveForm(activeForm === 'classe' ? null : 'classe')}><FaPlus style={{marginRight:8}}/>Criar Classe</button>
+        <button onClick={() => setActiveForm(activeForm === 'semestre' ? null : 'semestre')}><FaPlus style={{marginRight:8}}/>Criar Semestre</button>
         <button onClick={() => setActiveForm(activeForm === 'disciplina' ? null : 'disciplina')}><FaPlus style={{marginRight:8}}/>Cadastrar Disciplina</button>
         <button onClick={() => setActiveForm(activeForm === 'material' ? null : 'material')}><FaChalkboardTeacher style={{marginRight:8}}/>Cadastar Professor</button>
         <button className="sair" onClick={handleSair}><FaSignOutAlt style={{marginRight:8}}/>Sair</button>
@@ -380,7 +454,50 @@ const handleCadastrarDisciplina = async (e) => {
             <span className="dashboard-card-title">Professores</span>
             <span className="dashboard-card-value">{quantidadeProfessores}</span>
           </div>
+          <div className="dashboard-card">
+            <FaBookOpen className="dashboard-icon" />
+            <span className="dashboard-card-title">Semestres</span>
+            <span className="dashboard-card-value">{semestres.length}</span>
+          </div>
         </div>
+
+        {activeForm === "semestre" && (
+          <form className="dashboard-form" onSubmit={handleCadastrarSemestre}>
+            <h2>
+              <FaPlus style={{ marginRight: 8 }} />
+              Criar Semestre
+            </h2>
+
+            {feedback.mensagem && (
+              <div className={`feedback ${feedback.tipo}`}>
+                {feedback.mensagem}
+              </div>
+            )}
+
+            <input
+              type="text"
+              placeholder="Ex: 1º Semestre"
+              value={semestreNome}
+              onChange={(e) => setSemestreNome(e.target.value)}
+              required
+            />
+
+            <button type="submit">
+              <FaPlus style={{ marginRight: 8 }} />
+              Cadastrar Semestre
+            </button>
+
+            <div className="lista-semestres-admin">
+              {semestres.length === 0 ? (
+                <span>Nenhum semestre cadastrado.</span>
+              ) : (
+                semestres.map((semestre) => (
+                  <span key={semestre.id ?? semestre.nome}>{semestre.nome}</span>
+                ))
+              )}
+            </div>
+          </form>
+        )}
 
                 {/* Formulário SPA para Cadastrar Disciplina */}
         {activeForm === "disciplina" && (

@@ -18,15 +18,15 @@ public class Professor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_utilizador", nullable = false,referencedColumnName = "id",insertable = true,updatable = false)
+    @OneToOne
+    @JoinColumn(name = "id_utilizador", nullable = false, referencedColumnName = "id", insertable = true, updatable = false, unique = true)
     private  Utilizador utilizador;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_Classe", nullable = false,referencedColumnName = "id",insertable = true,updatable = false)
     private  Classe classe;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_disciplina", nullable = false,referencedColumnName = "id",insertable = true,updatable = false)
     private  Disciplina disciplina;
 

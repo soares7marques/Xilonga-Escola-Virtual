@@ -1,6 +1,7 @@
 package com.example.demo.Controller;
 
 import java.security.Principal;
+import java.util.Map;
 
 import org.springframework.http.MediaType;
 import org.springframework.core.io.Resource;
@@ -13,14 +14,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.Dto.DtoProva;
 import com.example.demo.Service.MaterialAulaService;
+import com.example.demo.Service.ProfessorService;
+import com.example.demo.Service.SemestreService;
 import com.example.demo.model.MaterialAula;
-
-import jakarta.validation.Valid;
 
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RequestMapping("/professor")
@@ -29,21 +28,43 @@ import jakarta.validation.Valid;
 public class ProfessorController {
 
     private final MaterialAulaService materialAulaService;
+    private final ProfessorService professorService;
+    private final SemestreService semestreService;
 
-    public ProfessorController(MaterialAulaService materialAulaService) {
+    public ProfessorController(MaterialAulaService materialAulaService, ProfessorService professorService, SemestreService semestreService) {
         this.materialAulaService = materialAulaService;
+        this.professorService = professorService;
+        this.semestreService = semestreService;
+    }
+
+    @GetMapping("/perfil")
+    public ResponseEntity<?> perfil(Principal principal) {
+        return ResponseEntity.ok(professorService.getPerfilPorEmail(principal.getName()));
+    }
+
+    @GetMapping("/semestres")
+    public ResponseEntity<?> listarSemestres() {
+        return ResponseEntity.ok(semestreService.listarSemestres());
     }
 
     @PostMapping(value = "/materiais", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> criarMaterial(
-        @RequestParam String classe,
-        @RequestParam String disciplina,
+        @RequestParam(required = false) String classe,
+        @RequestParam(required = false) String disciplina,
         @RequestParam String semestre,
         @RequestParam String titulo,
         @RequestParam(required = false) MultipartFile video,
         Principal principal
     ) {
-        return ResponseEntity.ok(materialAulaService.criarMaterial(classe, disciplina, semestre, titulo, video, principal));
+        Map<String, Object> perfil = professorService.getPerfilPorEmail(principal.getName());
+        return ResponseEntity.ok(materialAulaService.criarMaterial(
+            (String) perfil.get("classe"),
+            (String) perfil.get("disciplina"),
+            semestre,
+            titulo,
+            video,
+            principal
+        ));
     }
 
     @GetMapping("/materiais")
@@ -66,16 +87,4 @@ public class ProfessorController {
             .body(video);
     }
 
-    @PostMapping("/provas")
-    public ResponseEntity<?> criarProva(@Valid @RequestBody DtoProva request, Principal principal) {
-        return ResponseEntity.ok(materialAulaService.criarProva(request, principal));
-    }
-
-    @GetMapping("/provas")
-    public ResponseEntity<?> listarProvas(
-        @RequestParam(required = false) String disciplina,
-        @RequestParam(required = false) String semestre
-    ) {
-        return ResponseEntity.ok(materialAulaService.listarProvas(disciplina, semestre));
-    }
 }

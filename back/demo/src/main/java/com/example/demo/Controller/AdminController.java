@@ -15,8 +15,10 @@ import com.example.demo.Service.AdminService;
 import com.example.demo.Service.ClasseService;
 import com.example.demo.Service.DisciplinaService;
 import com.example.demo.Service.ProfessorService;
+import com.example.demo.Service.SemestreService;
 import com.example.demo.model.Classe;
 import com.example.demo.model.Disciplina;
+import com.example.demo.model.Semestre;
 import com.example.demo.model.Utilizador;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,12 +32,14 @@ public class AdminController {
     private ClasseService nivelService;
     private DisciplinaService disciplinaService;
     private ProfessorService professorService;
+    private SemestreService semestreService;
 
-    public AdminController(AdminService adminService, ClasseService nivelService,ProfessorService professorService,DisciplinaService disciplinaService) {
+    public AdminController(AdminService adminService, ClasseService nivelService,ProfessorService professorService,DisciplinaService disciplinaService, SemestreService semestreService) {
         this.adminService = adminService;
         this.nivelService = nivelService;
         this.professorService = professorService;
         this.disciplinaService = disciplinaService;
+        this.semestreService = semestreService;
 
     }
 
@@ -63,6 +67,16 @@ public class AdminController {
     @GetMapping("/listaDisciplina")
     public List<Disciplina> findDisciplina() {
         return disciplinaService.ListaDisciplinas();
+    }
+
+    @PostMapping("/registerSemestre")
+    public ResponseEntity<?> registerSemestre(@Valid @RequestBody Semestre entity) {
+        return semestreService.criarSemestre(entity);
+    }
+
+    @GetMapping("/listaSemestre")
+    public List<Semestre> findSemestre() {
+        return semestreService.listarSemestres();
     }
 
     @GetMapping("/quantidadeProfessores")

@@ -14,26 +14,25 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.Dto.DtoProva;
 import com.example.demo.Repository.MaterialAulaRepository;
-import com.example.demo.Repository.ProvaRepository;
 import com.example.demo.model.MaterialAula;
-import com.example.demo.model.Prova;
 
 @Service
 public class MaterialAulaService {
 
+    private static final long TAMANHO_MAXIMO_VIDEO = 10 * 1024 * 1024;
+
     private final MaterialAulaRepository materialAulaRepository;
-    private final ProvaRepository provaRepository;
+    private final SemestreService semestreService;
     private final Path aulasDir;
 
     public MaterialAulaService(
         MaterialAulaRepository materialAulaRepository,
-        ProvaRepository provaRepository,
+        SemestreService semestreService,
         @Value("${app.upload.aulas-dir:uploads/aulas}") String aulasDir
     ) {
         this.materialAulaRepository = materialAulaRepository;
-        this.provaRepository = provaRepository;
+        this.semestreService = semestreService;
         this.aulasDir = Paths.get(aulasDir).toAbsolutePath().normalize();
     }
 
@@ -52,7 +51,19 @@ public class MaterialAulaService {
         material.setTitulo(normalizar(titulo));
         material.setProfessorEmail(getEmail(principal));
 
+        if (!semestreService.existeSemestre(material.getSemestre())) {
+            throw new IllegalArgumentException("Semestre não cadastrado.");
+        }
+
         if (video != null && !video.isEmpty()) {
+            if (video.getSize() > TAMANHO_MAXIMO_VIDEO) {
+                throw new IllegalArgumentException("O vídeo deve ter no máximo 10 MB.");
+            }
+
+            if (video.getContentType() == null || !video.getContentType().startsWith("video/")) {
+                throw new IllegalArgumentException("Envie apenas ficheiros de vídeo.");
+            }
+
             String nomeOriginal = video.getOriginalFilename() == null ? "video" : video.getOriginalFilename();
             String nomeSalvo = UUID.randomUUID() + "-" + nomeOriginal.replaceAll("[^a-zA-Z0-9._-]", "_");
             Path destino = aulasDir.resolve(nomeSalvo).normalize();
@@ -115,37 +126,6 @@ public class MaterialAulaService {
         }
 
         return materialAulaRepository.findAllByOrderByCriadoEmDesc();
-    }
-
-    public Prova criarProva(DtoProva request, Principal principal) {
-        Prova prova = new Prova();
-        prova.setClasse(normalizar(request.getClasse()));
-        prova.setDisciplina(normalizar(request.getDisciplina()));
-        prova.setSemestre(normalizar(request.getSemestre()));
-        prova.setTitulo(normalizar(request.getTitulo()));
-        prova.setDescricao(normalizar(request.getDescricao()));
-        prova.setPerguntas(normalizar(request.getPerguntas()));
-        prova.setProfessorEmail(getEmail(principal));
-        return provaRepository.save(prova);
-    }
-
-    public List<Prova> listarProvas(String disciplina, String semestre) {
-        boolean temDisciplina = temValor(disciplina);
-        boolean temSemestre = temValor(semestre);
-
-        if (temDisciplina && temSemestre) {
-            return provaRepository.findByDisciplinaAndSemestreOrderByCriadoEmDesc(disciplina.trim(), semestre.trim());
-        }
-
-        if (temDisciplina) {
-            return provaRepository.findByDisciplinaOrderByCriadoEmDesc(disciplina.trim());
-        }
-
-        if (temSemestre) {
-            return provaRepository.findBySemestreOrderByCriadoEmDesc(semestre.trim());
-        }
-
-        return provaRepository.findAllByOrderByCriadoEmDesc();
     }
 
     private String getEmail(Principal principal) {
