@@ -7,7 +7,7 @@ import Footer from '../../components/Footer/Footer';
 import '../../App.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaBookOpen, FaCheckCircle, FaGraduationCap, FaSearch, FaUsers } from 'react-icons/fa';
-import { API_BASE_URL, apiFetch } from '../../services/api';
+import { API_BASE_URL} from '../../services/api';
 
 const areasFallback = [
   {
@@ -90,9 +90,12 @@ const AreasDeEstudo = () => {
           params.set('pesquisa', searchTerm.trim());
         }
 
-        const response = await apiFetch(`${API_BASE_URL}/area-estudo?${params.toString()}`, {
-          signal: controller.signal
-        });
+        const response = await fetch(
+          `${API_BASE_URL}/area-estudo?${params.toString()}`,
+          {
+            signal: controller.signal
+          }
+        );
 
         if (!response.ok) {
           throw new Error('Erro ao carregar áreas de estudo.');
@@ -135,13 +138,17 @@ const AreasDeEstudo = () => {
     };
     console.log('Dados enviados para inscrição:', dadosEnvio);
     try {
-      const response = await apiFetch(`${API_BASE_URL}/aluno/inscricao`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dadosEnvio)
-      });
+        const response = await fetch(`${API_BASE_URL}/aluno/inscricao`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(dadosEnvio)
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao realizar inscrição');
+          }
       const data = await response.json();
 
         if (data.success) {
@@ -152,7 +159,7 @@ const AreasDeEstudo = () => {
           setTimeout(() => {
             setMensagem('');
             setMensagemTipo('');
-            navigate('/perfil', { state: { email } });
+            navigate('/login', { state: { email } });
           }, 2000);
 
         } else {

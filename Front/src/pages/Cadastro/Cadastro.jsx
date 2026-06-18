@@ -80,7 +80,7 @@ const OPCOES = [
         };
         setSuccess('Cadastro realizado com sucesso! Faça login para continuar.');
         setTimeout(() => {
-          navigate('/login', { replace: true, state: userData });
+          navigate('/areaEstudo', { replace: true, state: userData });
         }, 2000);
       } else {
         setError(data.error || 'Erro ao criar conta. Tente novamente.');

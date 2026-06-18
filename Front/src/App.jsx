@@ -32,9 +32,7 @@ function App() {
           } />
           
           <Route path="/areaEstudo" element={
-            <ProtectedRoute>
               <AreasDeEstudo />
-            </ProtectedRoute>
           } />
 
           <Route path="/perfil" element={

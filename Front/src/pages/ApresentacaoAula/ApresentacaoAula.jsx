@@ -29,8 +29,8 @@ const ApresentacaoAula = () => {
     "Geografia",
     "Português",
     "Educação Física",
-    "Artes",
-    "Informática"
+    "Educação Laboral",
+    "Educação Cívica Moral"
   ];
 
   const semestres = ["1º Semestre", "2º Semestre", "3º Semestre"];

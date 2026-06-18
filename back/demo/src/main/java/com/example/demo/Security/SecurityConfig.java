@@ -39,6 +39,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> {
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/aluno/register").permitAll()
+                .requestMatchers(HttpMethod.POST, "/aluno/inscricao").permitAll()
+                .requestMatchers(HttpMethod.POST,"/adminn/register").permitAll()
+                .requestMatchers(HttpMethod.GET,"/area-estudo").permitAll()
                 .requestMatchers(HttpMethod.POST, "/utilizador/login").permitAll();
                 auth.anyRequest().authenticated();
             })
