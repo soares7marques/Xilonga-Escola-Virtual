@@ -4,9 +4,10 @@ package com.example.demo.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.Dto.DtoInscricao;
+import com.example.demo.Dto.DtoProgressoMaterial;
 import com.example.demo.Service.AlunoService;
 import com.example.demo.model.Utilizador;
-import com.example.demo.Dto.DtoInscricao;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -43,6 +44,16 @@ public class AlunoController {
     @GetMapping("/perfil")
     public ResponseEntity<?> getPerfilAluno(@RequestParam String email) {
         return ResponseEntity.ok(alunoService.getPerfilAlunoPorEmail(email));
+    }
+
+    @GetMapping("/progresso")
+    public ResponseEntity<?> getResumoProgresso(@RequestParam String email) {
+        return ResponseEntity.ok(alunoService.getResumoProgressoPorEmail(email));
+    }
+
+    @PostMapping("/progresso")
+    public ResponseEntity<?> registrarProgresso(@RequestBody DtoProgressoMaterial dto) {
+        return ResponseEntity.ok(alunoService.registrarProgressoMaterial(dto.getEmail(), dto.getMaterialId()));
     }
 
     // Endpoint GET para retornar o ranking dos alunos

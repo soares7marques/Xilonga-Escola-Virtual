@@ -19,13 +19,7 @@ const ApresentacaoAula = () => {
   const [carregandoConteudo, setCarregandoConteudo] = useState(false);
   const [mensagemConteudo, setMensagemConteudo] = useState("");
   const [videoObjectUrl, setVideoObjectUrl] = useState("");
-  const [videosAssistidos, setVideosAssistidos] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("videosAssistidos") || "{}");
-    } catch {
-      return {};
-    }
-  });
+  const [videosAssistidosIds, setVideosAssistidosIds] = useState([]);
 
   const semestres = useMemo(() => agruparSemestres(materiaisBackend), [materiaisBackend]);
 
@@ -45,8 +39,13 @@ const ApresentacaoAula = () => {
       }));
   }, [materiaisBackend, semestreSelected]);
 
+  const videosAssistidosSet = useMemo(
+    () => new Set(videosAssistidosIds.map((id) => Number(id))),
+    [videosAssistidosIds]
+  );
+
   useEffect(() => {
-    const carregarPerfilEDisciplinas = async () => {
+    const carregarPerfilEProgresso = async () => {
       setCarregandoConteudo(true);
       setMensagemConteudo("");
 
@@ -60,6 +59,33 @@ const ApresentacaoAula = () => {
         const classe = perfil.classe || "";
         setClasseAluno(classe);
 
+        const progressoResponse = await apiFetch(`${API_BASE_URL}/aluno/progresso?email=${encodeURIComponent(usuario.email)}`);
+        if (!progressoResponse.ok) {
+          throw new Error("Não foi possível carregar o progresso do aluno.");
+        }
+
+        const progressoData = await progressoResponse.json();
+        setVideosAssistidosIds(Array.isArray(progressoData.videosAssistidosIds) ? progressoData.videosAssistidosIds : []);
+      } catch (error) {
+        setMensagemConteudo(error.message || "Não foi possível carregar os dados do backend.");
+        setDisciplinas([]);
+        setVideosAssistidosIds([]);
+      } finally {
+        setCarregandoConteudo(false);
+      }
+    };
+
+    carregarPerfilEProgresso();
+  }, [usuario.email]);
+
+  useEffect(() => {
+    const carregarDisciplinas = async () => {
+      if (!classeAluno) {
+        setDisciplinas([]);
+        return;
+      }
+
+      try {
         const disciplinasResponse = await apiFetch(`${API_BASE_URL}/adminn/listaDisciplina`);
         if (!disciplinasResponse.ok) {
           throw new Error("Não foi possível carregar disciplinas.");
@@ -68,21 +94,18 @@ const ApresentacaoAula = () => {
         const data = await disciplinasResponse.json();
         const lista = Array.isArray(data) ? data : [];
         const disciplinasDaClasse = lista
-          .filter((disciplina) => !classe || disciplina.classe?.nome === classe)
+          .filter((disciplina) => !classeAluno || disciplina.classe?.nome === classeAluno)
           .map((disciplina) => disciplina.nome)
           .filter(Boolean);
 
         setDisciplinas([...new Set(disciplinasDaClasse)]);
-      } catch (error) {
-        setMensagemConteudo(error.message || "Não foi possível carregar os dados do backend.");
+      } catch {
         setDisciplinas([]);
-      } finally {
-        setCarregandoConteudo(false);
       }
     };
 
-    carregarPerfilEDisciplinas();
-  }, [usuario.email]);
+    carregarDisciplinas();
+  }, [classeAluno]);
 
   useEffect(() => {
     if (!disciplinaSelected) {
@@ -159,24 +182,25 @@ const ApresentacaoAula = () => {
     setVideoSelected(null);
   };
 
-  const handleVideoClick = (video) => {
+  const handleVideoClick = async (video) => {
     setVideoSelected(video);
-    const chaveVideo = `${disciplinaSelected}-${semestreSelected}-${video.id}`;
 
-    setVideosAssistidos(prev => {
-      const novoProgresso = {
-        ...prev,
-        [chaveVideo]: true
-      };
+    try {
+      const response = await apiFetch(`${API_BASE_URL}/aluno/progresso`, {
+        method: "POST",
+        body: JSON.stringify({
+          email: usuario.email,
+          materialId: video.materialId,
+        }),
+      });
 
-      try {
-        localStorage.setItem("videosAssistidos", JSON.stringify(novoProgresso));
-      } catch {
-        // Mantém o progresso na sessão atual se o localStorage falhar.
+      if (response.ok) {
+        const data = await response.json();
+        setVideosAssistidosIds(Array.isArray(data.videosAssistidosIds) ? data.videosAssistidosIds : []);
       }
-
-      return novoProgresso;
-    });
+    } catch {
+      // Mantém o estado atual mesmo se o backend falhar momentaneamente.
+    }
   };
 
   const calcularProgresso = () => {
@@ -184,10 +208,7 @@ const ApresentacaoAula = () => {
       return 0;
     }
 
-    const assistidas = aulasDoSemestre.filter(video => {
-      const chaveVideo = `${disciplinaSelected}-${semestreSelected}-${video.id}`;
-      return videosAssistidos[chaveVideo] === true;
-    }).length;
+    const assistidas = aulasDoSemestre.filter((video) => videosAssistidosSet.has(Number(video.materialId))).length;
     return Math.round((assistidas / aulasDoSemestre.length) * 100);
   };
 
@@ -266,8 +287,7 @@ const ApresentacaoAula = () => {
 
             <div className="lista-videos">
               {aulasDoSemestre.map((video) => {
-                const chaveVideo = `${disciplinaSelected}-${semestreSelected}-${video.id}`;
-                const foiAssistido = videosAssistidos[chaveVideo] === true;
+                const foiAssistido = videosAssistidosSet.has(Number(video.materialId));
                 return (
                   <button
                     key={video.id}

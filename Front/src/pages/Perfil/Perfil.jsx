@@ -17,6 +17,26 @@ const DEFAULT_STUDENT = {
   pontuacao: '0',
 };
 
+const numberFormatter = new Intl.NumberFormat('pt-BR');
+
+const safeParseJSON = (value, fallback) => {
+  try {
+    return JSON.parse(value) ?? fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const getVideosAssistidos = () => {
+  try {
+    return safeParseJSON(localStorage.getItem('videosAssistidos') || '{}', {});
+  } catch {
+    return {};
+  }
+};
+
+const getVideoKey = (disciplina, semestre, materialId) => `${disciplina}-${semestre}-material-${materialId}`;
+
 const getInitialEmail = (stateData = {}) => {
   try {
     const sessionData = JSON.parse(sessionStorage.getItem('userData')) || {};
@@ -43,6 +63,14 @@ const Perfil = () => {
     ...DEFAULT_STUDENT,
     email,
     foto: getSavedPhoto(),
+  });
+  const [resumoPontuacao, setResumoPontuacao] = useState({
+    total: 0,
+    disciplinas: [],
+    videosAssistidos: 0,
+    videosTotais: 0,
+    carregando: false,
+    erro: '',
   });
   const [estadoPerfil, setEstadoPerfil] = useState('idle');
   const [erroPerfil, setErroPerfil] = useState('');
@@ -73,14 +101,46 @@ const Perfil = () => {
   };
 
   useEffect(() => {
+    let cancelado = false;
+
     setEstudante((prev) => ({
       ...prev,
       email,
     }));
 
+    const carregarResumoPontuacao = async () => {
+      setResumoPontuacao((prev) => ({
+        ...prev,
+        carregando: true,
+        erro: '',
+      }));
+
+      const response = await apiFetch(`${API_BASE_URL}/aluno/progresso?email=${encodeURIComponent(email)}`);
+
+      if (!response.ok) {
+        throw new Error('Não foi possível carregar a pontuação do perfil.');
+      }
+
+      const data = await response.json();
+
+      return {
+        total: Number(data.total || 0),
+        disciplinas: Array.isArray(data.disciplinas) ? data.disciplinas : [],
+        videosAssistidos: Number(data.videosAssistidos || 0),
+        videosTotais: Number(data.videosTotais || 0),
+        carregando: false,
+        erro: '',
+      };
+    };
+
     const fetchPerfil = async () => {
       setEstadoPerfil('loading');
       setErroPerfil('');
+      setResumoPontuacao((prev) => ({
+        ...prev,
+        carregando: true,
+        erro: '',
+      }));
 
       try {
         const response = await apiFetch(
@@ -98,6 +158,12 @@ const Perfil = () => {
         }
 
         const data = await response.json();
+        const classeAtual = data.classe || data.Classe || 'Não inscrito';
+        const resumoPontuacaoCalculado = await carregarResumoPontuacao();
+
+        if (cancelado) {
+          return;
+        }
 
         setEstudante((prev) => ({
           ...prev,
@@ -105,11 +171,19 @@ const Perfil = () => {
           contacto: data.contacto || data.Contacto || prev.contacto,
           email: data.email || data.Email || prev.email,
           genero: data.genero || data.Genero || prev.genero,
-          classe: data.classe || data.Classe || 'Não inscrito',
+          classe: classeAtual,
           pontuacao: data.pontuacao || data.Pontuacao || prev.pontuacao,
         }));
+        setResumoPontuacao(resumoPontuacaoCalculado);
         setEstadoPerfil('success');
       } catch {
+        if (!cancelado) {
+          setResumoPontuacao((prev) => ({
+            ...prev,
+            carregando: false,
+            erro: 'Não foi possível calcular a pontuação agora.',
+          }));
+        }
         setErroPerfil('Não foi possível atualizar os dados agora.');
         setEstadoPerfil('error');
       }
@@ -121,7 +195,14 @@ const Perfil = () => {
     } else {
       fetchPerfil();
     }
+
+    return () => {
+      cancelado = true;
+    };
   }, [email]);
+
+  const disciplinaQtd = resumoPontuacao.disciplinas.length;
+  const mediaPontuacao = disciplinaQtd > 0 ? Math.round(resumoPontuacao.total / disciplinaQtd) : 0;
 
   return (
     <div className="perfil-container">
@@ -165,6 +246,38 @@ const Perfil = () => {
           </div>
         </section>
 
+        <section className="perfil-stats" aria-label="Resumo de desempenho">
+          <article className="perfil-stat">
+            <span className="stat-icon" aria-hidden="true">
+              <i className="fas fa-star"></i>
+            </span>
+            <div>
+              <strong>{resumoPontuacao.carregando ? '...' : numberFormatter.format(resumoPontuacao.total)}</strong>
+              <span>Pontuação acumulada</span>
+            </div>
+          </article>
+
+          <article className="perfil-stat">
+            <span className="stat-icon" aria-hidden="true">
+              <i className="fas fa-book"></i>
+            </span>
+            <div>
+              <strong>{resumoPontuacao.carregando ? '...' : disciplinaQtd}</strong>
+              <span>Disciplinas avaliadas</span>
+            </div>
+          </article>
+
+          <article className="perfil-stat">
+            <span className="stat-icon" aria-hidden="true">
+              <i className="fas fa-play-circle"></i>
+            </span>
+            <div>
+              <strong>{resumoPontuacao.carregando ? '...' : numberFormatter.format(resumoPontuacao.videosAssistidos)}</strong>
+              <span>Vídeos assistidos</span>
+            </div>
+          </article>
+        </section>
+
         <section className="perfil-content">
           <article className="perfil-card perfil-info-card">
             <div className="section-heading">
@@ -196,6 +309,59 @@ const Perfil = () => {
                 <strong>{estudante.classe}</strong>
               </div>
             </div>
+          </article>
+
+          <article className="perfil-card perfil-progress-card">
+            <div className="section-heading">
+              <div>
+                <p className="perfil-eyebrow">Desempenho</p>
+                <h2>Pontuação por disciplina</h2>
+              </div>
+              <div className="progress-highlight">
+                <strong>{resumoPontuacao.carregando ? '...' : numberFormatter.format(resumoPontuacao.total)}</strong>
+                <span>Soma dos progressos</span>
+              </div>
+            </div>
+
+            {resumoPontuacao.erro && (
+              <span className="perfil-status perfil-status-error">{resumoPontuacao.erro}</span>
+            )}
+
+            {resumoPontuacao.carregando ? (
+              <div className="empty-state">
+                <p>A calcular o progresso das disciplinas...</p>
+              </div>
+            ) : resumoPontuacao.disciplinas.length > 0 ? (
+              <div className="progress-list">
+                {resumoPontuacao.disciplinas.map((disciplina) => (
+                  <div className="progress-row" key={disciplina.nome}>
+                    <div className="progress-row-top">
+                      <span className="progress-label">{disciplina.nome}</span>
+                      <strong>{disciplina.progresso}%</strong>
+                    </div>
+                    <div className="progress-bar" aria-hidden="true">
+                      <div
+                        className="progress-fill"
+                        style={{ width: `${disciplina.progresso}%` }}
+                      ></div>
+                    </div>
+                    <span className="progress-meta">
+                      {disciplina.videosVistos} de {disciplina.totalVideos} vídeos concluídos
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state">
+                <p>Sem progresso registrado ainda.</p>
+              </div>
+            )}
+
+            {!resumoPontuacao.carregando && disciplinaQtd > 0 && (
+              <p className="progress-note">
+                Média por disciplina: {mediaPontuacao}%
+              </p>
+            )}
           </article>
         </section>
       </main>

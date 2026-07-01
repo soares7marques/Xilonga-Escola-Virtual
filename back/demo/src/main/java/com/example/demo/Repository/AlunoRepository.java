@@ -13,5 +13,5 @@ import com.example.demo.model.Utilizador;
 @Repository
 public interface AlunoRepository extends JpaRepository<Aluno,Long>{
     Optional<Aluno> findByUtilizador(Utilizador utilizador);
-    
+
 }
