@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import '../../App.css';
+import { API_BASE_URL } from '../../services/api';
 
 const EsqueciSenha = () => {
   const [resetEmail, setResetEmail] = useState('');
@@ -17,7 +18,7 @@ const EsqueciSenha = () => {
     setMessage('');
 
     try {
-      const response = await fetch('http://localhost:8080/auth/esqueci-senha', {
+      const response = await fetch(`${API_BASE_URL}/auth/esqueci-senha`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

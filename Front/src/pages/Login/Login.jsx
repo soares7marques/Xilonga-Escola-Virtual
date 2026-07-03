@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import '../../App.css';
-import { setAuthSession } from '../../services/api';
+import { API_BASE_URL, setAuthSession } from '../../services/api';
 
 
 const Login = () => {
@@ -24,7 +24,7 @@ const Login = () => {
     setError('');
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/utilizador/login', {
+      const response = await fetch(`${API_BASE_URL}/utilizador/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

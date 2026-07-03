@@ -2,7 +2,7 @@
 import React from 'react';
 
 import { AuthProvider } from './context/AuthContext';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import ProtectedRoute from "./components/ProtectedRoute";
 import Inicio from './pages/Inicio/Inicio';
 import Login from './pages/Login/Login';

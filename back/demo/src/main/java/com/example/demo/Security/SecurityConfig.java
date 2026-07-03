@@ -71,9 +71,13 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                    .allowedOrigins("http://localhost:5173")
+                    .allowedOriginPatterns(
+                        "http://localhost:5173",
+                        "http://localhost:4173",
+                        "https://*.github.io"
+                    )
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                    .allowedHeaders("Authorization", "Content-Type")
+                    .allowedHeaders("*")
                     .exposedHeaders("Authorization")
                     .allowCredentials(true);
             }

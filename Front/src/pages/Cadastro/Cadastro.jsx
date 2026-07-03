@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 import '../../App.css';
+import { API_BASE_URL } from '../../services/api';
 
 const Cadastro = () => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const OPCOES = [
 
       console.log('Enviando dados para cadastro:', payload);
 
-      const response = await fetch('http://localhost:8080/aluno/register', {
+      const response = await fetch(`${API_BASE_URL}/aluno/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
