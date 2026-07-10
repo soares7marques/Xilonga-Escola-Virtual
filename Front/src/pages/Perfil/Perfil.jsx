@@ -46,9 +46,9 @@ const getInitialEmail = (stateData = {}) => {
   }
 };
 
-const getSavedPhoto = () => {
+const getSavedPhoto = (email) => {
   try {
-    return localStorage.getItem('perfilFoto') || '';
+    return localStorage.getItem(`perfilFoto_${email}`) || '';
   } catch {
     return '';
   }
@@ -62,7 +62,7 @@ const Perfil = () => {
   const [estudante, setEstudante] = useState({
     ...DEFAULT_STUDENT,
     email,
-    foto: getSavedPhoto(),
+    foto: getSavedPhoto(email),
   });
   const [resumoPontuacao, setResumoPontuacao] = useState({
     total: 0,
@@ -92,7 +92,7 @@ const Perfil = () => {
       setEstudante((prev) => ({ ...prev, foto }));
 
       try {
-        localStorage.setItem('perfilFoto', foto);
+        localStorage.setItem(`perfilFoto_${email}`, foto);
       } catch {
         // Mantém a foto na sessão mesmo se o navegador bloquear o localStorage.
       }

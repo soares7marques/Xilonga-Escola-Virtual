@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './DashboadAdmin.css';
 import { FaUserGraduate, FaChalkboardTeacher, FaPlus, FaBookOpen, FaSignOutAlt } from 'react-icons/fa';
-import { API_BASE_URL, apiFetch, clearAuthSession } from '../../services/api';
+import { API_BASE_URL, apiFetch, clearAuthSession, changePassword } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
 const DashboadAdmin = ({ onSair }) => {
@@ -14,6 +14,11 @@ const [senhaProfessor, setSenhaProfessor] = useState("");
 const [telefoneProfessor, setTelefoneProfessor] = useState("");
 const [generoProfessor, setGeneroProfessor] = useState("");
 const [professorErros, setProfessorErros] = useState({});
+
+// alterar senha
+const [changeEmail, setChangeEmail] = useState("");
+const [changeSenha, setChangeSenha] = useState("");
+const [changeErrors, setChangeErrors] = useState({});
 
 const [activeForm, setActiveForm] = useState(null);
 const [classeNome, setClasseNome] = useState("");
@@ -45,6 +50,36 @@ const limparErroProfessor = (campo) => {
     delete novosErros[campo];
     return novosErros;
   });
+};
+
+const limparErroChange = (campo) => {
+  setChangeErrors((erros) => {
+    const novos = { ...erros };
+    delete novos[campo];
+    return novos;
+  });
+};
+
+const validarAlterarSenha = () => {
+  const erros = {};
+  const email = changeEmail.trim();
+  const senha = changeSenha;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!email) {
+    erros.email = "Informe o email.";
+  } else if (!emailRegex.test(email)) {
+    erros.email = "Informe um email válido.";
+  }
+
+  if (!senha) {
+    erros.senha = "Informe a nova senha.";
+  } else if (senha.length < 6) {
+    erros.senha = "A senha deve ter no mínimo 6 caracteres.";
+  }
+
+  setChangeErrors(erros);
+  return Object.keys(erros).length === 0;
 };
 
 const validarProfessor = () => {
@@ -304,6 +339,36 @@ const handleSair = () => {
   }
 };
 
+const handleAlterarSenha = async (e) => {
+  e.preventDefault();
+
+  if (!validarAlterarSenha()) {
+    setFeedback({ tipo: 'erro', mensagem: 'Corrija os campos antes de enviar.' });
+    return;
+  }
+
+  try {
+    const response = await changePassword(changeEmail.trim(), changeSenha);
+
+    if (response.ok) {
+      setChangeEmail("");
+      setChangeSenha("");
+      setChangeErrors({});
+      setFeedback({ tipo: 'sucesso', mensagem: 'Senha alterada com sucesso.' });
+    } else {
+      const text = await response.text();
+      let mensagem = text || 'Erro ao alterar a senha.';
+      try { mensagem = JSON.parse(text).message || mensagem; } catch {}
+      setFeedback({ tipo: 'erro', mensagem });
+    }
+  } catch (err) {
+    console.error(err);
+    setFeedback({ tipo: 'erro', mensagem: 'Erro de conexão.' });
+  }
+
+  setTimeout(() => setFeedback({ tipo: '', mensagem: '' }), 4000);
+};
+
 
 const handleCadastrarDisciplina = async (e) => {
   e.preventDefault();
@@ -433,6 +498,7 @@ const handleCadastrarSemestre = async (e) => {
         <button onClick={() => setActiveForm(activeForm === 'semestre' ? null : 'semestre')}><FaPlus style={{marginRight:8}}/>Criar Semestre</button>
         <button onClick={() => setActiveForm(activeForm === 'disciplina' ? null : 'disciplina')}><FaPlus style={{marginRight:8}}/>Cadastrar Disciplina</button>
         <button onClick={() => setActiveForm(activeForm === 'material' ? null : 'material')}><FaChalkboardTeacher style={{marginRight:8}}/>Cadastar Professor</button>
+        <button onClick={() => setActiveForm(activeForm === 'alterarSenha' ? null : 'alterarSenha')}>Alterar Senha</button>
         <button className="sair" onClick={handleSair}><FaSignOutAlt style={{marginRight:8}}/>Sair</button>
       </aside>
       <main className="dashboard-main">
@@ -760,6 +826,47 @@ const handleCadastrarSemestre = async (e) => {
               <FaBookOpen style={{marginRight:8}} />
               Cadastrar Professor
             </button>
+          </form>
+        )}
+
+        {activeForm === 'alterarSenha' && (
+          <form className="dashboard-form" onSubmit={handleAlterarSenha} noValidate>
+            <h2>Alterar Senha</h2>
+
+            {feedback.mensagem && (
+              <div className={`feedback ${feedback.tipo}`}>
+                {feedback.mensagem}
+              </div>
+            )}
+
+            <label htmlFor="change-email">Email</label>
+            <input
+              id="change-email"
+              type="email"
+              placeholder="Email do usuário"
+              value={changeEmail}
+              onChange={(e) => { setChangeEmail(e.target.value); limparErroChange('email'); }}
+              aria-invalid={Boolean(changeErrors.email)}
+              required
+            />
+            {changeErrors.email && <span className="campo-erro">{changeErrors.email}</span>}
+
+            <label htmlFor="change-senha">Nova Senha</label>
+            <input
+              id="change-senha"
+              type="password"
+              placeholder="Nova senha"
+              value={changeSenha}
+              onChange={(e) => { setChangeSenha(e.target.value); limparErroChange('senha'); }}
+              aria-invalid={Boolean(changeErrors.senha)}
+              required
+            />
+            {changeErrors.senha && <span className="campo-erro">{changeErrors.senha}</span>}
+
+            <div style={{display: 'flex', gap: '8px'}}>
+              <button type="submit">Alterar Senha</button>
+              <button type="button" onClick={() => { setChangeEmail(''); setChangeSenha(''); setChangeErrors({}); }}>Limpar</button>
+            </div>
           </form>
         )}
       </main>

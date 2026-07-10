@@ -20,7 +20,7 @@ import com.example.demo.model.MaterialAula;
 @Service
 public class MaterialAulaService {
 
-    private static final long TAMANHO_MAXIMO_VIDEO = 10 * 1024 * 1024;
+    private static final long TAMANHO_MAXIMO_VIDEO = 30 * 1024 * 1024; // 30 MB
 
     private final MaterialAulaRepository materialAulaRepository;
     private final SemestreService semestreService;
@@ -57,7 +57,7 @@ public class MaterialAulaService {
 
         if (video != null && !video.isEmpty()) {
             if (video.getSize() > TAMANHO_MAXIMO_VIDEO) {
-                throw new IllegalArgumentException("O vídeo deve ter no máximo 10 MB.");
+                throw new IllegalArgumentException("O vídeo deve ter no máximo 30 MB.");
             }
 
             if (video.getContentType() == null || !video.getContentType().startsWith("video/")) {

@@ -53,4 +53,22 @@ public ResponseEntity<?> login(DtoLogin request){
             dto.setSuccess(true);
             return ResponseEntity.ok(dto);
     }
+
+    public ResponseEntity<?> changePassword(String email, String novaSenha) {
+        try {
+            var utilizadorOpt = utilizadorRepository.findByEmail(email);
+            if (utilizadorOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Usuário não encontrado"));
+            }
+
+            Utilizador utilizador = utilizadorOpt.get();
+            String senhaEncriptada = passwordEncoder.encode(novaSenha);
+            utilizador.setSenha(senhaEncriptada);
+            utilizadorRepository.save(utilizador);
+
+            return ResponseEntity.ok(Map.of("message", "Senha alterada com sucesso"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", "Erro interno"));
+        }
+    }
 }

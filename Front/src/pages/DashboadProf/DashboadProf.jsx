@@ -4,7 +4,7 @@ import { FaBookOpen, FaChalkboardTeacher, FaSignOutAlt, FaUserGraduate } from 'r
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL, apiFetch, clearAuthSession, getCurrentUser } from '../../services/api';
 
-const LIMITE_VIDEO_MB = 10;
+const LIMITE_VIDEO_MB = 30;
 const LIMITE_VIDEO_BYTES = LIMITE_VIDEO_MB * 1024 * 1024;
 
 const lerErroResposta = async (response) => {
@@ -267,7 +267,7 @@ const Dashboard = ({ onSair }) => {
               required
             />
 
-            <label htmlFor="video-input">Upload do Vídeo (máx. 10 MB):</label>
+            <label htmlFor="video-input">Upload do Vídeo (máx. 30 MB):</label>
             <input
               id="video-input"
               type="file"

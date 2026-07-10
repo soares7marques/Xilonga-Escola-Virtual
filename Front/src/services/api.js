@@ -65,3 +65,10 @@ export const apiFetch = (url, options = {}) => {
     headers,
   });
 };
+
+export const changePassword = async (email, newPassword) => {
+  return apiFetch(`${API_BASE_URL}/auth/change-password`, {
+    method: 'POST',
+    body: JSON.stringify({ email, senha: newPassword }),
+  });
+};
