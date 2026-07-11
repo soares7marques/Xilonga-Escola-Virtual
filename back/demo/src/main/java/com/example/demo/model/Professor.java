@@ -6,7 +6,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 
@@ -18,8 +17,8 @@ public class Professor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToOne
-    @JoinColumn(name = "id_utilizador", nullable = false, referencedColumnName = "id", insertable = true, updatable = false, unique = true)
+    @ManyToOne
+    @JoinColumn(name = "id_utilizador", nullable = false, referencedColumnName = "id", insertable = true, updatable = false)
     private  Utilizador utilizador;
 
     @ManyToOne

@@ -51,8 +51,15 @@ export const isTokenValid = () => {
 export const apiFetch = (url, options = {}) => {
   const token = getAuthToken();
   const headers = new Headers(options.headers || {});
+  const method = (options.method || 'GET').toUpperCase();
 
-  if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
+  if (
+    !headers.has('Content-Type') &&
+    !(options.body instanceof FormData) &&
+    options.body != null &&
+    method !== 'GET' &&
+    method !== 'HEAD'
+  ) {
     headers.set('Content-Type', 'application/json');
   }
 

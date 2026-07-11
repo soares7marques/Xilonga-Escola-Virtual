@@ -131,6 +131,120 @@
   background: #357ab8;
 }
 
+.dashboard-logout-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(6px);
+}
+
+.dashboard-logout-modal {
+  width: min(100%, 390px);
+  padding: 28px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f2937;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.3);
+  text-align: center;
+  animation: dashboardLogoutIn 0.22s ease both;
+}
+
+.dashboard-logout-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #e94e77;
+  font-size: 1.35rem;
+}
+
+.dashboard-logout-modal h2 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.35rem;
+}
+
+.dashboard-logout-modal p {
+  margin: 10px 0 0;
+  color: #64748b;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.dashboard-logout-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  color: #2d3e50;
+  background: #eef2f7;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.dashboard-logout-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.dashboard-logout-actions button {
+  min-width: 112px;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.dashboard-logout-actions button:hover:not(:disabled),
+.dashboard-logout-actions button:focus-visible:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+}
+
+.dashboard-logout-actions button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.dashboard-logout-cancel {
+  color: #2d3e50;
+  background: #edf2f7;
+}
+
+.dashboard-logout-confirm {
+  color: #ffffff;
+  background: #e94e77;
+}
+
+.dashboard-logout-confirm:hover:not(:disabled),
+.dashboard-logout-confirm:focus-visible:not(:disabled) {
+  background: #d83d66;
+}
+
+@keyframes dashboardLogoutIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .dashboard-main {
   flex: 1;
   padding: 48px 40px;
@@ -283,6 +397,44 @@
   color: #64748b;
 }
 
+.dashboard-subtitle {
+  margin: -6px 0 18px;
+  color: #475569;
+}
+
+.alunos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.aluno-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  padding: 16px;
+  background: linear-gradient(180deg, #f8fbff, #ffffff);
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.06);
+}
+
+.aluno-card strong {
+  color: #1e3a8a;
+  font-size: 1.02rem;
+}
+
+.aluno-card span,
+.aluno-card small {
+  color: #475569;
+  word-break: break-word;
+}
+
+.aluno-card:hover {
+  border-color: #60a5fa;
+  box-shadow: 0 8px 22px rgba(59, 130, 246, 0.12);
+}
+
 @media (max-width: 860px) {
   .dashboard-container {
     flex-direction: column;
@@ -294,7 +446,8 @@
 
   .dashboard-filtros,
   .dashboard-list-grid,
-  .dashboard-cards {
+  .dashboard-cards,
+  .alunos-grid {
     grid-template-columns: 1fr;
     flex-direction: column;
   }

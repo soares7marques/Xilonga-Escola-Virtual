@@ -1,6 +1,7 @@
 package com.example.demo.Controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,10 +16,10 @@ import com.example.demo.Service.AdminService;
 import com.example.demo.Service.ClasseService;
 import com.example.demo.Service.DisciplinaService;
 import com.example.demo.Service.ProfessorService;
-import com.example.demo.Service.SemestreService;
+import com.example.demo.Service.TrimestreService;
 import com.example.demo.model.Classe;
 import com.example.demo.model.Disciplina;
-import com.example.demo.model.Semestre;
+import com.example.demo.model.Trimestre;
 import com.example.demo.model.Utilizador;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,14 +33,14 @@ public class AdminController {
     private ClasseService nivelService;
     private DisciplinaService disciplinaService;
     private ProfessorService professorService;
-    private SemestreService semestreService;
+    private TrimestreService trimestreService;
 
-    public AdminController(AdminService adminService, ClasseService nivelService,ProfessorService professorService,DisciplinaService disciplinaService, SemestreService semestreService) {
+    public AdminController(AdminService adminService, ClasseService nivelService,ProfessorService professorService,DisciplinaService disciplinaService, TrimestreService trimestreService) {
         this.adminService = adminService;
         this.nivelService = nivelService;
         this.professorService = professorService;
         this.disciplinaService = disciplinaService;
-        this.semestreService = semestreService;
+        this.trimestreService = trimestreService;
 
     }
 
@@ -69,19 +70,24 @@ public class AdminController {
         return disciplinaService.ListaDisciplinas();
     }
 
-    @PostMapping("/registerSemestre")
-    public ResponseEntity<?> registerSemestre(@Valid @RequestBody Semestre entity) {
-        return semestreService.criarSemestre(entity);
+    @PostMapping({"/registerTrimestre", "/registerSemestre"})
+    public ResponseEntity<?> registerTrimestre(@Valid @RequestBody Trimestre entity) {
+        return trimestreService.criarTrimestre(entity);
     }
 
-    @GetMapping("/listaSemestre")
-    public List<Semestre> findSemestre() {
-        return semestreService.listarSemestres();
+    @GetMapping({"/listaTrimestre", "/listaSemestre"})
+    public List<Trimestre> findTrimestre() {
+        return trimestreService.listarTrimestres();
     }
 
     @GetMapping("/quantidadeProfessores")
     public ResponseEntity<?> getQuantidadeProfessores() {
         return ResponseEntity.ok(professorService.getQuantidadeProfessores());
+    }
+
+    @GetMapping("/listaProfessores")
+    public List<Map<String, Object>> findProfessores() {
+        return professorService.listarProfessores();
     }
     
     

@@ -154,7 +154,7 @@
 /* ==================== LINKS ==================== */
 .Login-links {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 15px;
@@ -170,6 +170,13 @@
 
 .Login-links a:hover {
   color: #287e77;
+}
+
+.Login-create-account-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 /* ==================== RESPONSIVE DESIGN ==================== */

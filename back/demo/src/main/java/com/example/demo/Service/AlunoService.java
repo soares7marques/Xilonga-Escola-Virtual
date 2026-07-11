@@ -181,7 +181,7 @@ public class AlunoService {
                 progresso.setAlunoId(aluno.getId());
                 progresso.setMaterialId(material.getId());
                 progresso.setDisciplina(material.getDisciplina());
-                progresso.setSemestre(material.getSemestre());
+                progresso.setTrimestre(material.getTrimestre());
                 return progressoMaterialAlunoRepository.save(progresso);
             });
 

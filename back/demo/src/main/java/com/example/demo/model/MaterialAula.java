@@ -2,6 +2,7 @@ package com.example.demo.model;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,7 +19,8 @@ public class MaterialAula {
 
     private String classe;
     private String disciplina;
-    private String semestre;
+    @Column(name = "semestre")
+    private String trimestre;
     private String titulo;
     private String nomeArquivo;
     private String nomeArquivoSalvo;
@@ -56,12 +58,20 @@ public class MaterialAula {
         this.disciplina = disciplina;
     }
 
+    public String getTrimestre() {
+        return trimestre;
+    }
+
+    public void setTrimestre(String trimestre) {
+        this.trimestre = trimestre;
+    }
+
     public String getSemestre() {
-        return semestre;
+        return trimestre;
     }
 
     public void setSemestre(String semestre) {
-        this.semestre = semestre;
+        this.trimestre = semestre;
     }
 
     public String getTitulo() {

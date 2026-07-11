@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -38,6 +39,11 @@ public class ExceptionGlobal{
     @ExceptionHandler(ExceptionDadosDuplicado.class)
     public ResponseEntity<String> handleExceptionDadosDuplicado(ExceptionDadosDuplicado e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("Já existe um cadastro com estes dados.");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

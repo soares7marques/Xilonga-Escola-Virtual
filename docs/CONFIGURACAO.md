@@ -72,7 +72,7 @@ O Vite disponibiliza a aplicacao em `http://localhost:5173`.
 O upload de aulas segue esta regra:
 
 - O video fica guardado na maquina local, na pasta configurada em `app.upload.aulas-dir`.
-- O banco de dados guarda os metadados: classe, disciplina, semestre, titulo, nome original, nome salvo, caminho local, content type, tamanho e email do professor.
+- O banco de dados guarda os metadados: classe, disciplina, trimestre, titulo, nome original, nome salvo, caminho local, content type, tamanho e email do professor.
 - O limite por ficheiro e 10 MB.
 
 Em ambiente de producao, configure `app.upload.aulas-dir` para um diretorio persistente com permissao de escrita para o processo Java.
@@ -83,7 +83,7 @@ Em ambiente de producao, configure `app.upload.aulas-dir` para um diretorio pers
 2. Iniciar o backend.
 3. Iniciar o frontend.
 4. Cadastrar administrador, classes e disciplinas.
-5. Cadastrar os semestres globais usados pelas aulas.
+5. Cadastrar os trimestres globais usados pelas aulas.
 6. Cadastrar professores associados a uma classe e uma disciplina.
 7. Cadastrar ou inscrever alunos.
 8. Entrar como professor e enviar videos.
@@ -96,11 +96,11 @@ Em ambiente de producao, configure `app.upload.aulas-dir` para um diretorio pers
 - `GET /adminn/listaClasse`: lista classes.
 - `POST /adminn/registerDisciplina`: cria disciplina.
 - `GET /adminn/listaDisciplina`: lista disciplinas.
-- `POST /adminn/registerSemestre`: cria semestre global, limitado a 3 registros.
-- `GET /adminn/listaSemestre`: lista semestres.
+- `POST /adminn/registerTrimestre`: cria trimestre global, limitado a 3 registros.
+- `GET /adminn/listaTrimestre`: lista trimestres.
 - `POST /adminn/registerProfessor`: cria professor.
 - `GET /professor/perfil`: retorna classe e disciplina do professor autenticado.
-- `GET /professor/semestres`: lista semestres cadastrados.
+- `GET /professor/trimestres`: lista trimestres cadastrados.
 - `POST /professor/materiais`: envia aula em video.
 - `GET /professor/materiais`: lista aulas.
 - `GET /professor/materiais/{id}/video`: reproduz video.

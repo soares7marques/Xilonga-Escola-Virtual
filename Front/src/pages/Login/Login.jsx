@@ -123,8 +123,10 @@ const Login = () => {
 
               </form>
               <div className="Login-links">
-                <Link to="/esqueci-senha">Esqueci minha senha</Link>
-                <Link to="/cadastro">Criar Conta</Link>
+                <Link to="/cadastro" className="Login-create-account-link">
+                  <i className="fas fa-user-plus" aria-hidden="true"></i>
+                  <span>Criar Conta</span>
+                </Link>
               </div>
             </div>
           </div>

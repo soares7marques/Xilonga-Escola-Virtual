@@ -21,10 +21,12 @@ const [changeSenha, setChangeSenha] = useState("");
 const [changeErrors, setChangeErrors] = useState({});
 
 const [activeForm, setActiveForm] = useState(null);
+const [mostrarConfirmacaoSaida, setMostrarConfirmacaoSaida] = useState(false);
+const [saindo, setSaindo] = useState(false);
 const [classeNome, setClasseNome] = useState("");
 const [classeDescricao, setClasseDescricao] = useState("");
 const [classeSelecionada, setClasseSelecionada] = useState("");
-const [semestreNome, setSemestreNome] = useState("");
+const [trimestreNome, setTrimestreNome] = useState("");
   
 const [feedback, setFeedback] = useState({
   tipo: "",
@@ -37,7 +39,8 @@ const [materialDisciplina, setMaterialDisciplina] = useState("");
 
 const [classes, setClasses] = useState([]);
 const [disciplinas, setDisciplinas] = useState([]);
-const [semestres, setSemestres] = useState([]);
+const [trimestres, setTrimestres] = useState([]);
+const [professores, setProfessores] = useState([]);
 
 const disciplinasDisponiveis = disciplinas.filter((disciplina) => {
   const classeDaDisciplina = disciplina.classe?.nome;
@@ -221,6 +224,9 @@ useEffect(() => {
       setProfessorErros({});
       setQuantidadeProfessores((total) => total + 1);
 
+        // atualizar lista de professores visível
+        carregarProfessores();
+
         setFeedback({
           tipo: "sucesso",
           mensagem: "Professor cadastrado com sucesso!"
@@ -254,6 +260,25 @@ useEffect(() => {
     }, 4000);
   }
 };
+
+const carregarProfessores = async () => {
+  try {
+    const response = await apiFetch(`${API_BASE_URL}/adminn/listaProfessores`, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      setProfessores(Array.isArray(data) ? data : []);
+    }
+  } catch (err) {
+    console.error('Erro ao carregar professores', err);
+  }
+}
+
+useEffect(() => {
+  carregarProfessores();
+}, []);
 
 const carregarClasses = async () => {
     try {
@@ -306,10 +331,10 @@ const carregarDisciplinas = async () => {
   carregarDisciplinas();
 }, []);
 
-const carregarSemestres = async () => {
+const carregarTrimestres = async () => {
     try {
       const response = await apiFetch(
-        `${API_BASE_URL}/adminn/listaSemestre`,
+        `${API_BASE_URL}/adminn/listaTrimestre`,
         {
           headers: {'Content-Type': 'application/json'}
         }
@@ -320,23 +345,37 @@ const carregarSemestres = async () => {
       }
 
       const data = await response.json();
-      setSemestres(Array.isArray(data) ? data : []);
+      setTrimestres(Array.isArray(data) ? data : []);
 
     } catch (error) {
-      console.error("Erro ao carregar semestres:", error);
+      console.error("Erro ao carregar trimestres:", error);
     }
   }
   useEffect(() => {
-  carregarSemestres();
+  carregarTrimestres();
 }, []);
 
 const handleSair = () => {
-  clearAuthSession();
-  if (onSair) {
-    onSair();
-  } else {
-    navigate('/login', { replace: true });
+  setMostrarConfirmacaoSaida(true);
+};
+
+const cancelarSaida = () => {
+  if (!saindo) {
+    setMostrarConfirmacaoSaida(false);
   }
+};
+
+const confirmarSaida = () => {
+  setSaindo(true);
+  clearAuthSession();
+
+  setTimeout(() => {
+    if (onSair) {
+      onSair();
+    } else {
+      navigate('/login', { replace: true });
+    }
+  }, 650);
 };
 
 const handleAlterarSenha = async (e) => {
@@ -438,34 +477,34 @@ const handleCadastrarDisciplina = async (e) => {
   }
 };
 
-const handleCadastrarSemestre = async (e) => {
+const handleCadastrarTrimestre = async (e) => {
   e.preventDefault();
 
-  if (!semestreNome.trim()) {
+  if (!trimestreNome.trim()) {
     setFeedback({
       tipo: "erro",
-      mensagem: "Informe o nome do semestre."
+      mensagem: "Informe o nome do trimestre."
     });
     return;
   }
 
   try {
-    const response = await apiFetch(`${API_BASE_URL}/adminn/registerSemestre`, {
+    const response = await apiFetch(`${API_BASE_URL}/adminn/registerTrimestre`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        nome: semestreNome.trim()
+        nome: trimestreNome.trim()
       }),
     });
 
     if (response.ok) {
-      setSemestreNome("");
-      carregarSemestres();
+      setTrimestreNome("");
+      carregarTrimestres();
       setFeedback({
         tipo: "sucesso",
-        mensagem: "Semestre cadastrado com sucesso!"
+        mensagem: "Trimestre cadastrado com sucesso!"
       });
 
       setTimeout(() => {
@@ -476,7 +515,7 @@ const handleCadastrarSemestre = async (e) => {
       const erro = await response.text();
       setFeedback({
         tipo: "erro",
-        mensagem: erro || "Erro ao cadastrar semestre."
+        mensagem: erro || "Erro ao cadastrar trimestre."
       });
     }
   } catch {
@@ -495,9 +534,10 @@ const handleCadastrarSemestre = async (e) => {
       <aside className="dashboard-sidebar">
         <h2>Menu</h2>
         <button onClick={() => setActiveForm(activeForm === 'classe' ? null : 'classe')}><FaPlus style={{marginRight:8}}/>Criar Classe</button>
-        <button onClick={() => setActiveForm(activeForm === 'semestre' ? null : 'semestre')}><FaPlus style={{marginRight:8}}/>Criar Semestre</button>
+        <button onClick={() => setActiveForm(activeForm === 'trimestre' ? null : 'trimestre')}><FaPlus style={{marginRight:8}}/>Criar Trimestre</button>
         <button onClick={() => setActiveForm(activeForm === 'disciplina' ? null : 'disciplina')}><FaPlus style={{marginRight:8}}/>Cadastrar Disciplina</button>
         <button onClick={() => setActiveForm(activeForm === 'material' ? null : 'material')}><FaChalkboardTeacher style={{marginRight:8}}/>Cadastar Professor</button>
+        <button onClick={() => setActiveForm(activeForm === 'listarProfessores' ? null : 'listarProfessores')}>Listar Professores</button>
         <button onClick={() => setActiveForm(activeForm === 'alterarSenha' ? null : 'alterarSenha')}>Alterar Senha</button>
         <button className="sair" onClick={handleSair}><FaSignOutAlt style={{marginRight:8}}/>Sair</button>
       </aside>
@@ -522,16 +562,16 @@ const handleCadastrarSemestre = async (e) => {
           </div>
           <div className="dashboard-card">
             <FaBookOpen className="dashboard-icon" />
-            <span className="dashboard-card-title">Semestres</span>
-            <span className="dashboard-card-value">{semestres.length}</span>
+            <span className="dashboard-card-title">Trimestres</span>
+            <span className="dashboard-card-value">{trimestres.length}</span>
           </div>
         </div>
 
-        {activeForm === "semestre" && (
-          <form className="dashboard-form" onSubmit={handleCadastrarSemestre}>
+        {activeForm === "trimestre" && (
+          <form className="dashboard-form" onSubmit={handleCadastrarTrimestre}>
             <h2>
               <FaPlus style={{ marginRight: 8 }} />
-              Criar Semestre
+              Criar Trimestre
             </h2>
 
             {feedback.mensagem && (
@@ -542,23 +582,23 @@ const handleCadastrarSemestre = async (e) => {
 
             <input
               type="text"
-              placeholder="Ex: 1º Semestre"
-              value={semestreNome}
-              onChange={(e) => setSemestreNome(e.target.value)}
+              placeholder="Ex: 1º Trimestre"
+              value={trimestreNome}
+              onChange={(e) => setTrimestreNome(e.target.value)}
               required
             />
 
             <button type="submit">
               <FaPlus style={{ marginRight: 8 }} />
-              Cadastrar Semestre
+              Cadastrar Trimestre
             </button>
 
-            <div className="lista-semestres-admin">
-              {semestres.length === 0 ? (
-                <span>Nenhum semestre cadastrado.</span>
+            <div className="lista-trimestres-admin">
+              {trimestres.length === 0 ? (
+                <span>Nenhum trimestre cadastrado.</span>
               ) : (
-                semestres.map((semestre) => (
-                  <span key={semestre.id ?? semestre.nome}>{semestre.nome}</span>
+                trimestres.map((trimestre) => (
+                  <span key={trimestre.id ?? trimestre.nome}>{trimestre.nome}</span>
                 ))
               )}
             </div>
@@ -865,11 +905,63 @@ const handleCadastrarSemestre = async (e) => {
 
             <div style={{display: 'flex', gap: '8px'}}>
               <button type="submit">Alterar Senha</button>
-              <button type="button" onClick={() => { setChangeEmail(''); setChangeSenha(''); setChangeErrors({}); }}>Limpar</button>
             </div>
           </form>
         )}
+
+        {activeForm === 'listarProfessores' && (
+          <div className="dashboard-form">
+            <h2>Professores Cadastrados</h2>
+            {professores.length === 0 ? (
+              <span>Nenhum professor cadastrado.</span>
+            ) : (
+              <table className="professores-table">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Classe</th>
+                    <th>Disciplina</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {professores.map((p, idx) => (
+                    <tr key={p.id ?? idx}>
+                      <td>{p.nome}</td>
+                      <td>{p.email}</td>
+                      <td>{p.classe}</td>
+                      <td>{p.disciplina}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
       </main>
+
+      {mostrarConfirmacaoSaida && (
+        <div className="dashboard-logout-overlay" role="dialog" aria-modal="true" aria-labelledby="admin-logout-title">
+          <div className="dashboard-logout-modal">
+            <span className="dashboard-logout-icon" aria-hidden="true">
+              <FaSignOutAlt />
+            </span>
+            <h2 id="admin-logout-title">Terminar sessão?</h2>
+            <p>Ao sair do painel administrativo, será necessário fazer login novamente para gerir o sistema.</p>
+
+            {saindo && <span className="dashboard-logout-status">A terminar sessão...</span>}
+
+            <div className="dashboard-logout-actions">
+              <button type="button" className="dashboard-logout-cancel" onClick={cancelarSaida} disabled={saindo}>
+                Cancelar
+              </button>
+              <button type="button" className="dashboard-logout-confirm" onClick={confirmarSaida} disabled={saindo}>
+                Sair
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

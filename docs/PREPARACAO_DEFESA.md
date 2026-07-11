@@ -2,15 +2,15 @@
 
 ## 1. Visao geral do projeto
 
-O Xilonga e uma plataforma web de apoio ao ensino. A aplicacao organiza classes, disciplinas, professores, alunos e aulas em video. O objetivo principal e permitir que o professor disponibilize conteudo de acordo com a sua classe, disciplina e semestre, enquanto o aluno acessa apenas as aulas da classe em que esta inscrito.
+O Xilonga e uma plataforma web de apoio ao ensino. A aplicacao organiza classes, disciplinas, professores, alunos e aulas em video. O objetivo principal e permitir que o professor disponibilize conteudo de acordo com a sua classe, disciplina e trimestre, enquanto o aluno acessa apenas as aulas da classe em que esta inscrito.
 
 ## 2. Problema resolvido
 
 Muitas escolas precisam de uma forma simples de organizar conteudos digitais por nivel de ensino. O Xilonga resolve isso com:
 
-- Cadastro centralizado de classes, disciplinas, semestres e professores.
+- Cadastro centralizado de classes, disciplinas, trimestres e professores.
 - Associacao de cada professor a uma unica classe e uma unica disciplina.
-- Upload de videos por disciplina e semestre.
+- Upload de videos por disciplina e trimestre.
 - Area do aluno focada em assistir aulas.
 - Controle de acesso por perfil de utilizador.
 
@@ -24,10 +24,10 @@ Funcionalidades:
 
 - Cadastrar classes.
 - Cadastrar disciplinas associadas a uma classe.
-- Cadastrar semestres globais, limitados a 3.
+- Cadastrar trimestres globais, limitados a 3.
 - Cadastrar professores.
 - Associar professor a uma classe e disciplina.
-- Consultar totais de alunos, professores, classes e semestres.
+- Consultar totais de alunos, professores, classes e trimestres.
 
 ### Professor
 
@@ -37,7 +37,7 @@ Funcionalidades:
 
 - Acessar o dashboard do professor.
 - Ver a sua classe e disciplina preenchidas automaticamente.
-- Selecionar semestre cadastrado.
+- Selecionar trimestre cadastrado.
 - Enviar video de aula com limite de 10 MB.
 - Consultar materiais enviados.
 
@@ -53,7 +53,7 @@ Funcionalidades:
 
 - Inscrever-se numa classe.
 - Ver disciplinas da classe inscrita.
-- Escolher disciplina e semestre.
+- Escolher disciplina e trimestre.
 - Assistir videos disponibilizados pelo professor.
 - Acompanhar progresso local das aulas abertas.
 
@@ -67,9 +67,9 @@ O administrador cria uma classe com nome e descricao. Essa classe sera usada par
 
 A disciplina e criada sempre associada a uma classe. Isso permite que a mesma disciplina possa existir em classes diferentes, mantendo a organizacao por nivel.
 
-### Cadastro de semestre
+### Cadastro de trimestre
 
-Os semestres sao globais e servem para todas as classes e disciplinas. O sistema limita o total a 3 semestres, conforme a regra da aplicacao.
+Os trimestres sao globais e servem para todas as classes e disciplinas. O sistema limita o total a 3 trimestres, conforme a regra da aplicacao.
 
 ### Cadastro de professor
 
@@ -84,18 +84,18 @@ O sistema garante que o professor fica associado a apenas uma classe e uma disci
 
 ### Upload de video
 
-O professor envia uma aula em video informando titulo e semestre. O sistema valida:
+O professor envia uma aula em video informando titulo e trimestre. O sistema valida:
 
 - Se o ficheiro e video.
 - Se o tamanho nao passa de 10 MB.
-- Se o semestre existe.
+- Se o trimestre existe.
 - Se o professor esta autenticado.
 
 O ficheiro fica guardado na maquina local e o banco guarda os metadados, incluindo caminho do ficheiro.
 
 ### Visualizacao de aulas
 
-O aluno acessa somente aulas relacionadas a sua classe. Ao escolher disciplina e semestre, o sistema carrega os materiais do backend.
+O aluno acessa somente aulas relacionadas a sua classe. Ao escolher disciplina e trimestre, o sistema carrega os materiais do backend.
 
 ## 5. Segurança aplicada
 
@@ -148,7 +148,7 @@ O sistema usa PostgreSQL. As principais entidades sao:
 - `professor`
 - `classe`
 - `disciplina`
-- `semestre`
+- `trimestre`
 - `inscricao`
 - `material_aula`
 
@@ -158,7 +158,7 @@ Relacoes principais:
 - Uma classe tem varias disciplinas.
 - Um professor pertence a uma classe e uma disciplina.
 - Um aluno pode inscrever-se numa classe.
-- Um material de aula pertence a classe, disciplina e semestre definidos pelo professor.
+- Um material de aula pertence a classe, disciplina e trimestre definidos pelo professor.
 
 ## 7. Arquitetura tecnica
 
@@ -224,7 +224,7 @@ O video fica na maquina local. O banco guarda o caminho e os metadados. Para pro
 1. Apresentar o problema.
 2. Explicar a solucao proposta.
 3. Mostrar os perfis: administrador, professor e aluno.
-4. Demonstrar cadastro de classe, disciplina e semestre.
+4. Demonstrar cadastro de classe, disciplina e trimestre.
 5. Demonstrar cadastro de professor.
 6. Entrar como professor e enviar video.
 7. Entrar como aluno e assistir aula.

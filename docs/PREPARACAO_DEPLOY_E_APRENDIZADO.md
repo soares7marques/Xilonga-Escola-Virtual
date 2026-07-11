@@ -313,7 +313,7 @@ O PostgreSQL foi usado como banco relacional para armazenar dados do sistema.
 - professores;
 - alunos;
 - disciplinas;
-- semestres;
+- trimestres;
 - materiais/aulas;
 - progresso do aluno.
 

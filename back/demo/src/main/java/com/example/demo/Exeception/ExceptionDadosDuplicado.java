@@ -6,4 +6,8 @@ public class ExceptionDadosDuplicado extends RuntimeException{
         super("Esse Dado já existe");
     }
 
+    public ExceptionDadosDuplicado(String message) {
+        super(message);
+    }
+
 }

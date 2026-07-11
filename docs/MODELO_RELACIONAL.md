@@ -80,18 +80,18 @@ Representa uma disciplina associada a uma classe.
 
 Relacao: uma classe pode ter varias disciplinas; cada disciplina pertence a uma classe.
 
-### semestre
+### trimestre
 
-Representa os semestres globais usados por todas as classes e disciplinas.
+Representa os trimestres globais usados por todas as classes e disciplinas.
 
 | Campo | Tipo sugerido | Observacao |
 | --- | --- | --- |
 | id | BIGINT | Chave primaria |
-| nome | VARCHAR(100) | Nome unico, exemplo: 1º Semestre |
+| nome | VARCHAR(100) | Nome unico, exemplo: 1º Trimestre |
 
-Relacao: semestre e uma tabela global. Ele nao pertence a uma classe especifica.
+Relacao: trimestre e uma tabela global. Ele nao pertence a uma classe especifica.
 
-Regra: o sistema permite no maximo 3 semestres globais.
+Regra: o sistema permite no maximo 3 trimestres globais.
 
 ### inscricao
 
@@ -114,7 +114,7 @@ Representa uma aula em video disponibilizada pelo professor.
 | id | BIGINT | Chave primaria |
 | classe | VARCHAR(100) | Nome da classe no momento do upload |
 | disciplina | VARCHAR(100) | Nome da disciplina no momento do upload |
-| semestre | VARCHAR(100) | Nome do semestre cadastrado |
+| trimestre | VARCHAR(100) | Nome do trimestre cadastrado |
 | titulo | VARCHAR(255) | Titulo da aula |
 | nome_arquivo | VARCHAR(255) | Nome original do ficheiro |
 | nome_arquivo_salvo | VARCHAR(255) | Nome gerado para armazenamento local |
@@ -138,7 +138,7 @@ Regra de armazenamento:
 - `classe 1 -> N disciplina`
 - `classe 1 -> N inscricao`
 - `aluno 1 -> N inscricao`
-- `classe/disciplina/semestre -> material_aula` por valores textuais gravados no upload
+- `classe/disciplina/trimestre -> material_aula` por valores textuais gravados no upload
 
 ## Diagrama textual
 
@@ -149,20 +149,20 @@ utilizador
   |-- professor ----------- classe
              \------------ disciplina
 
-semestre
+trimestre
   \-- usado globalmente por material_aula
 
 material_aula
   |-- classe
   |-- disciplina
-  |-- semestre
+  |-- trimestre
   |-- professor_email
   \-- caminho_arquivo
 ```
 
 ## Melhorias recomendadas para evolucao
 
-- Transformar `material_aula.classe`, `material_aula.disciplina` e `material_aula.semestre` em chaves estrangeiras para evitar divergencia de texto.
+- Transformar `material_aula.classe`, `material_aula.disciplina` e `material_aula.trimestre` em chaves estrangeiras para evitar divergencia de texto.
 - Transformar `inscricao.idAluno` e `inscricao.idClasse` em relacoes JPA `ManyToOne`.
 - Criar indice unico em `disciplina(id_classe, nome)`.
 - Criar indice unico em `professor(id_utilizador)`.

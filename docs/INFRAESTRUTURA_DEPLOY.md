@@ -101,7 +101,7 @@ Se usar `/api`, o frontend deve apontar `API_BASE_URL` para `/api` ou para o dom
 
 - `main`: codigo pronto para producao.
 - `develop`: integracao de funcionalidades.
-- branches curtas para tarefas: `feature/semestres`, `fix/upload-video`, etc.
+- branches curtas para tarefas: `feature/trimestres`, `fix/upload-video`, etc.
 
 ### Secrets do GitHub Actions
 

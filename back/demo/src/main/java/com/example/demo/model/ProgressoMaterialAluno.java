@@ -28,7 +28,8 @@ public class ProgressoMaterialAluno {
     private Long materialId;
 
     private String disciplina;
-    private String semestre;
+    @Column(name = "semestre")
+    private String trimestre;
     private LocalDateTime vistoEm;
 
     public ProgressoMaterialAluno() {
@@ -67,12 +68,20 @@ public class ProgressoMaterialAluno {
         this.disciplina = disciplina;
     }
 
+    public String getTrimestre() {
+        return trimestre;
+    }
+
+    public void setTrimestre(String trimestre) {
+        this.trimestre = trimestre;
+    }
+
     public String getSemestre() {
-        return semestre;
+        return trimestre;
     }
 
     public void setSemestre(String semestre) {
-        this.semestre = semestre;
+        this.trimestre = semestre;
     }
 
     public LocalDateTime getVistoEm() {

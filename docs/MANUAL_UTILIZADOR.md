@@ -31,13 +31,13 @@ O Xilonga e uma plataforma de apoio ao estudo onde:
 3. Informe o nome da disciplina.
 4. Confirme o cadastro.
 
-### Cadastrar semestre
+### Cadastrar trimestre
 
-1. No dashboard do administrador, abra a opcao "Criar Semestre".
-2. Informe o nome do semestre, por exemplo: `1º Semestre`.
+1. No dashboard do administrador, abra a opcao "Criar Trimestre".
+2. Informe o nome do trimestre, por exemplo: `1º Trimestre`.
 3. Confirme o cadastro.
-4. Os semestres cadastrados ficam disponiveis para todas as classes e disciplinas.
-5. O sistema permite no maximo 3 semestres.
+4. Os trimestres cadastrados ficam disponiveis para todas as classes e disciplinas.
+5. O sistema permite no maximo 3 trimestres.
 
 ### Cadastrar professor
 
@@ -53,7 +53,7 @@ O Xilonga e uma plataforma de apoio ao estudo onde:
 
 1. Acesse a area do professor.
 2. A classe e a disciplina aparecem preenchidas automaticamente de acordo com o cadastro do professor.
-3. Selecione o semestre.
+3. Selecione o trimestre.
 4. Informe o titulo da aula.
 5. Escolha um ficheiro de video com tamanho maximo de 10 MB.
 6. Clique em "Adicionar Video".
@@ -63,7 +63,7 @@ O Xilonga e uma plataforma de apoio ao estudo onde:
 ### Consultar materiais
 
 1. Na area do professor, clique em "Materiais".
-2. Use o filtro de semestre se necessario.
+2. Use o filtro de trimestre se necessario.
 3. Veja os videos cadastrados para a disciplina do professor.
 
 ## Aluno
@@ -80,7 +80,7 @@ O Xilonga e uma plataforma de apoio ao estudo onde:
 1. Acesse a area de aulas.
 2. O sistema apresenta as disciplinas da classe em que o aluno esta inscrito.
 3. Escolha uma disciplina.
-4. Escolha um semestre com aulas disponiveis.
+4. Escolha um trimestre com aulas disponiveis.
 5. Clique numa aula para assistir ao video.
 6. O progresso e atualizado conforme as aulas abertas.
 

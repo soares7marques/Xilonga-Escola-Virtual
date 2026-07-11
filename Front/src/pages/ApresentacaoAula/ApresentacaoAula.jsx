@@ -4,40 +4,67 @@ import Footer from "../../components/Footer/Footer";
 import "./ApresentacaoAula.css";
 import { API_BASE_URL, apiFetch, getCurrentUser } from "../../services/api";
 
-const agruparSemestres = (materiais) => {
-  return [...new Set(materiais.map((material) => material.semestre).filter(Boolean))];
+const getTrimestreMaterial = (material) => material.trimestre || material.semestre || "";
+
+const agruparTrimestres = (materiais) => {
+  return [...new Set(materiais.map(getTrimestreMaterial).filter(Boolean))];
 };
+
+const normalizarTexto = (valor) =>
+  (valor || '')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ');
+
+const criarVideoUrl = (material) => {
+  if (material.nomeArquivoSalvo) {
+    return `${API_BASE_URL}/media/aulas/${encodeURIComponent(material.nomeArquivoSalvo)}`;
+  }
+
+  return `${API_BASE_URL}/professor/materiais/${material.id}/video`;
+};
+
+const criarVideoUrlPorId = (materialId) => `${API_BASE_URL}/professor/materiais/${materialId}/video`;
 
 const ApresentacaoAula = () => {
   const usuario = getCurrentUser();
   const [classeAluno, setClasseAluno] = useState("");
   const [disciplinaSelected, setDisciplinaSelected] = useState(null);
-  const [semestreSelected, setSemestreSelected] = useState(null);
+  const [trimestreSelected, setTrimestreSelected] = useState(null);
   const [videoSelected, setVideoSelected] = useState(null);
   const [disciplinas, setDisciplinas] = useState([]);
   const [materiaisBackend, setMateriaisBackend] = useState([]);
   const [carregandoConteudo, setCarregandoConteudo] = useState(false);
   const [mensagemConteudo, setMensagemConteudo] = useState("");
   const [videoObjectUrl, setVideoObjectUrl] = useState("");
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [videoError, setVideoError] = useState("");
+  const [videoTentouFallback, setVideoTentouFallback] = useState(false);
   const [videosAssistidosIds, setVideosAssistidosIds] = useState([]);
 
-  const semestres = useMemo(() => agruparSemestres(materiaisBackend), [materiaisBackend]);
+  const trimestres = useMemo(() => agruparTrimestres(materiaisBackend), [materiaisBackend]);
 
-  const aulasDoSemestre = useMemo(() => {
-    if (!semestreSelected) {
+  const classeAlunoNormalizada = useMemo(() => normalizarTexto(classeAluno), [classeAluno]);
+
+  const aulasDoTrimestre = useMemo(() => {
+    if (!trimestreSelected) {
       return [];
     }
 
     return materiaisBackend
-      .filter((material) => material.semestre === semestreSelected)
+      .filter((material) => normalizarTexto(getTrimestreMaterial(material)) === normalizarTexto(trimestreSelected))
       .map((material) => ({
         id: `material-${material.id}`,
         materialId: material.id,
         titulo: material.titulo,
         nomeArquivo: material.nomeArquivo,
+        videoUrl: criarVideoUrl(material),
         professorEmail: material.professorEmail
       }));
-  }, [materiaisBackend, semestreSelected]);
+  }, [materiaisBackend, trimestreSelected]);
 
   const videosAssistidosSet = useMemo(
     () => new Set(videosAssistidosIds.map((id) => Number(id))),
@@ -126,7 +153,15 @@ const ApresentacaoAula = () => {
 
         const materiais = await response.json();
         const lista = Array.isArray(materiais) ? materiais : [];
-        setMateriaisBackend(lista.filter((material) => !classeAluno || material.classe === classeAluno));
+        setMateriaisBackend(
+          lista.filter((material) => {
+            if (!classeAlunoNormalizada) {
+              return true;
+            }
+
+            return normalizarTexto(material.classe) === classeAlunoNormalizada;
+          })
+        );
       } catch (error) {
         setMateriaisBackend([]);
         setMensagemConteudo(error.message || "Não foi possível carregar as aulas.");
@@ -136,49 +171,31 @@ const ApresentacaoAula = () => {
     };
 
     carregarConteudo();
-  }, [disciplinaSelected, classeAluno]);
+  }, [disciplinaSelected, classeAlunoNormalizada]);
 
   useEffect(() => {
     if (!videoSelected?.materialId) {
       setVideoObjectUrl("");
+      setVideoLoading(false);
+      setVideoError("");
+      setVideoTentouFallback(false);
       return;
     }
 
-    let objectUrl = "";
-
-    const carregarVideo = async () => {
-      try {
-        const response = await apiFetch(`${API_BASE_URL}/professor/materiais/${videoSelected.materialId}/video`);
-
-        if (!response.ok) {
-          throw new Error("Não foi possível carregar o vídeo.");
-        }
-
-        const blob = await response.blob();
-        objectUrl = URL.createObjectURL(blob);
-        setVideoObjectUrl(objectUrl);
-      } catch {
-        setVideoObjectUrl("");
-      }
-    };
-
-    carregarVideo();
-
-    return () => {
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
-    };
+    setVideoLoading(true);
+    setVideoError("");
+    setVideoTentouFallback(false);
+    setVideoObjectUrl(videoSelected.videoUrl || criarVideoUrlPorId(videoSelected.materialId));
   }, [videoSelected]);
 
   const handleDisciplinaClick = (disciplina) => {
     setDisciplinaSelected(disciplina);
-    setSemestreSelected(null);
+    setTrimestreSelected(null);
     setVideoSelected(null);
   };
 
-  const handleSemestreClick = (semestre) => {
-    setSemestreSelected(semestre);
+  const handleTrimestreClick = (trimestre) => {
+    setTrimestreSelected(trimestre);
     setVideoSelected(null);
   };
 
@@ -204,22 +221,36 @@ const ApresentacaoAula = () => {
   };
 
   const calcularProgresso = () => {
-    if (aulasDoSemestre.length === 0) {
+    if (aulasDoTrimestre.length === 0) {
       return 0;
     }
 
-    const assistidas = aulasDoSemestre.filter((video) => videosAssistidosSet.has(Number(video.materialId))).length;
-    return Math.round((assistidas / aulasDoSemestre.length) * 100);
+    const assistidas = aulasDoTrimestre.filter((video) => videosAssistidosSet.has(Number(video.materialId))).length;
+    return Math.round((assistidas / aulasDoTrimestre.length) * 100);
   };
 
   const handleVoltar = () => {
     if (videoSelected) {
       setVideoSelected(null);
-    } else if (semestreSelected) {
-      setSemestreSelected(null);
+    } else if (trimestreSelected) {
+      setTrimestreSelected(null);
     } else {
       setDisciplinaSelected(null);
     }
+  };
+
+  const handleVideoError = () => {
+    const fallbackUrl = videoSelected?.materialId ? criarVideoUrlPorId(videoSelected.materialId) : "";
+
+    if (fallbackUrl && videoObjectUrl !== fallbackUrl && !videoTentouFallback) {
+      setVideoTentouFallback(true);
+      setVideoObjectUrl(fallbackUrl);
+      return;
+    }
+
+    setVideoLoading(false);
+    setVideoError("Não foi possível carregar o vídeo.");
+    setVideoObjectUrl("");
   };
 
   return (
@@ -246,23 +277,23 @@ const ApresentacaoAula = () => {
               ))}
             </div>
           </div>
-        ) : !semestreSelected ? (
+        ) : !trimestreSelected ? (
           <div className="area-estudo">
             <button className="btn-voltar" onClick={handleVoltar}>Voltar</button>
             <h2>{disciplinaSelected}</h2>
-            <p className="subtitulo">Escolha o semestre</p>
+            <p className="subtitulo">Escolha o trimestre</p>
             {carregandoConteudo && <p className="subtitulo">A carregar aulas...</p>}
-            {!carregandoConteudo && semestres.length === 0 && (
+            {!carregandoConteudo && trimestres.length === 0 && (
               <p className="estado-conteudo">Nenhuma aula disponível para esta disciplina.</p>
             )}
-            <div className="semestres">
-              {semestres.map((semestre) => (
+            <div className="trimestres">
+              {trimestres.map((trimestre) => (
                 <button
-                  key={semestre}
-                  className="semestre-btn"
-                  onClick={() => handleSemestreClick(semestre)}
+                  key={trimestre}
+                  className="trimestre-btn"
+                  onClick={() => handleTrimestreClick(trimestre)}
                 >
-                  {semestre}
+                  {trimestre}
                 </button>
               ))}
             </div>
@@ -271,7 +302,7 @@ const ApresentacaoAula = () => {
           <div className="area-estudo">
             <button className="btn-voltar" onClick={handleVoltar}>Voltar</button>
             <h2>{disciplinaSelected}</h2>
-            <p className="subtitulo">{semestreSelected}</p>
+            <p className="subtitulo">{trimestreSelected}</p>
 
             <div className="progresso-container">
               <div className="progresso-texto">
@@ -286,7 +317,7 @@ const ApresentacaoAula = () => {
             </div>
 
             <div className="lista-videos">
-              {aulasDoSemestre.map((video) => {
+              {aulasDoTrimestre.map((video) => {
                 const foiAssistido = videosAssistidosSet.has(Number(video.materialId));
                 return (
                   <button
@@ -305,26 +336,39 @@ const ApresentacaoAula = () => {
           <div className="video-section">
             <button className="btn-voltar" onClick={handleVoltar}>Voltar</button>
             <h2>{videoSelected.titulo}</h2>
-            <p className="breadcrumb">{disciplinaSelected} / {semestreSelected}</p>
+            <p className="breadcrumb">{disciplinaSelected} / {trimestreSelected}</p>
             <div className="video-container">
               <div className="material-disponivel">
+                {videoLoading && <p className="estado-conteudo">A carregar vídeo...</p>}
+                {videoError && <p className="estado-conteudo">{videoError}</p>}
                 {videoObjectUrl ? (
-                  <video controls src={videoObjectUrl} width="100%" height="360">
+                  <video
+                    controls
+                    playsInline
+                    preload="metadata"
+                    src={videoObjectUrl}
+                    width="100%"
+                    height="360"
+                    onLoadedData={() => setVideoLoading(false)}
+                    onError={handleVideoError}
+                  >
                     O seu navegador não suporta vídeo HTML5.
                   </video>
                 ) : (
+                  !videoLoading && !videoError && (
                   <>
                     <h3>Material disponibilizado pelo professor</h3>
                     <p>{videoSelected.nomeArquivo || "Arquivo cadastrado no backend."}</p>
                     <span>{videoSelected.professorEmail}</span>
                   </>
+                  )
                 )}
               </div>
             </div>
             <div className="proximos-videos">
               <h3>Próximos Vídeos</h3>
               <div className="lista-proximos">
-                {aulasDoSemestre
+                {aulasDoTrimestre
                   .filter(v => v.id !== videoSelected.id)
                   .slice(0, 3)
                   .map((video) => (

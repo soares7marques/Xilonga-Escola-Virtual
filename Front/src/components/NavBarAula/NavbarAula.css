@@ -81,6 +81,121 @@
   pointer-events: none;
 }
 
+.logout-feedback-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(8, 28, 36, 0.62);
+  backdrop-filter: blur(6px);
+}
+
+.logout-feedback {
+  width: min(100%, 380px);
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #10242d;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+  text-align: center;
+  animation: logoutFeedbackIn 0.22s ease both;
+}
+
+.logout-feedback-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  color: #10242d;
+  background: #5cd8d0;
+  font-size: 1.35rem;
+}
+
+.logout-feedback h2 {
+  margin: 0;
+  color: #10242d;
+  font-size: 1.35rem;
+}
+
+.logout-feedback p {
+  margin: 10px 0 0;
+  color: #52626a;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.logout-feedback-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  color: #287e77;
+  background: rgba(92, 216, 208, 0.18);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.logout-feedback-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.logout-feedback-actions button {
+  min-width: 112px;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.logout-feedback-actions button:hover:not(:disabled),
+.logout-feedback-actions button:focus-visible:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+}
+
+.logout-feedback-actions button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.logout-cancel {
+  color: #2c5364;
+  background: #edf4f6;
+}
+
+.logout-confirm {
+  color: #ffffff;
+  background: #2c5364;
+}
+
+.logout-confirm:hover:not(:disabled),
+.logout-confirm:focus-visible:not(:disabled) {
+  background: #244755;
+}
+
+@keyframes logoutFeedbackIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* Tooltip opcional */
 .btn-sair[title]:hover::after {
   content: attr(title);

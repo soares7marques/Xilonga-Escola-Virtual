@@ -35,7 +35,7 @@ const getVideosAssistidos = () => {
   }
 };
 
-const getVideoKey = (disciplina, semestre, materialId) => `${disciplina}-${semestre}-material-${materialId}`;
+const getVideoKey = (disciplina, trimestre, materialId) => `${disciplina}-${trimestre}-material-${materialId}`;
 
 const getInitialEmail = (stateData = {}) => {
   try {
